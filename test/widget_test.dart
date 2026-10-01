@@ -14,7 +14,7 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
 
-    expect(find.text('Cadastrar e Monitorizar'), findsOneWidget);
-    expect(find.text('Salvar'), findsOneWidget);
+    expect(find.text('Teste da câmara IP'), findsOneWidget);
+    expect(find.text('Ligar e Guardar'), findsOneWidget);
   });
 }
