@@ -49,15 +49,18 @@ class CameraStreamService {
   void _onMessage(dynamic message) {
     try {
       final decoded = jsonDecode(message as String);
-      if (decoded is Map)
+      if (decoded is Map) {
         _frames.add(CameraFrame.fromJson(Map<String, dynamic>.from(decoded)));
+      }
     } on Object catch (error, stackTrace) {
       _frames.addError(error, stackTrace);
     }
   }
 
   void _scheduleReconnect() {
-    if (_disposed || _reconnectTimer?.isActive == true) return;
+    if (_disposed || _reconnectTimer?.isActive == true) {
+      return;
+    }
     _reconnectTimer = Timer(reconnectDelay, _open);
   }
 

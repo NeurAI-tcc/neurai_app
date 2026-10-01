@@ -55,15 +55,17 @@ class AuthService {
     final decoded = response.body.isEmpty
         ? <String, dynamic>{}
         : jsonDecode(response.body);
-    if (response.statusCode < 200 || response.statusCode >= 300)
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Falha na autenticação (${response.statusCode})');
+    }
     return Map<String, dynamic>.from(decoded as Map);
   }
 
   Future<void> _saveToken(Map<String, dynamic> result) async {
     final value = result['access'] ?? result['token'];
-    if (value is String && value.isNotEmpty)
+    if (value is String && value.isNotEmpty) {
       await storage.write(key: tokenKey, value: value);
+    }
   }
 
   Map<String, dynamic> _userJson(Map<String, dynamic> result) =>

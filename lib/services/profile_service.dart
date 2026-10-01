@@ -21,8 +21,9 @@ class ProfileService {
           ..fields['perfil'] = jsonEncode(dados);
     final response = await client.send(request);
     final body = await response.stream.bytesToString();
-    if (response.statusCode < 200 || response.statusCode >= 300)
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Falha ao salvar perfil (${response.statusCode})');
+    }
     return UsuarioModel.fromJson(
       Map<String, dynamic>.from(jsonDecode(body) as Map),
     );
@@ -42,8 +43,9 @@ class ProfileService {
     }
     final response = await client.send(request);
     final body = await response.stream.bytesToString();
-    if (response.statusCode < 200 || response.statusCode >= 300)
+    if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Falha ao enviar fotos (${response.statusCode})');
+    }
     final json = jsonDecode(body);
     return json is Map && json['fotos_urls'] is List
         ? (json['fotos_urls'] as List).whereType<String>().toList()
