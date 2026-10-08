@@ -3,7 +3,11 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+<<<<<<< HEAD
   file_selector_windows
+=======
+  flutter_secure_storage_windows
+>>>>>>> 1f1bf35b8578d9ddc7d11213e634d5789a1b8865
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
