@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide FormField;
+import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/contents/child_step_indicador.dart';
 import 'package:neurai_app/views/paginas_de_crianca/cadastro_rotina.dart';
 
@@ -9,7 +10,9 @@ import '../contents/form_field.dart';
 import '../contents/text_area.dart';
 
 class CadastroComportamentoPage extends StatefulWidget {
-  const CadastroComportamentoPage({super.key});
+  const CadastroComportamentoPage({super.key, required this.cadastro});
+
+  final CadastroCriancaDraft cadastro;
 
   @override
   State<CadastroComportamentoPage> createState() =>
@@ -20,6 +23,13 @@ class _CadastroComportamentoPageState
     extends State<CadastroComportamentoPage> {
 
   String? comunicacaoSelecionada;
+
+  @override
+  void initState() {
+    super.initState();
+    comunicacaoSelecionada =
+        widget.cadastro.valores['comunicacao'] as String?;
+  }
 
   Future<void> selecionarComunicacao() async {
     final String? resultado = await showModalBottomSheet<String>(
@@ -81,6 +91,7 @@ class _CadastroComportamentoPageState
     if (resultado != null) {
       setState(() {
         comunicacaoSelecionada = resultado;
+        widget.cadastro.setValue('comunicacao', resultado);
       });
     }
   }
@@ -177,8 +188,9 @@ class _CadastroComportamentoPageState
 
               const SizedBox(height: 5),
 
-              const FormField(
+              FormField(
                 hint: 'Ex.: ouvir música, brincar com blocos...',
+                controller: widget.cadastro.text('atividades_favoritas'),
               ),
 
               const SizedBox(height: 20),
@@ -200,9 +212,10 @@ class _CadastroComportamentoPageState
 
               const SizedBox(height: 5),
 
-              const TextArea(
+              TextArea(
                 hint: 'Ex.: barulho alto, lugares cheios...',
                 maxLines: 4,
+                controller: widget.cadastro.text('gatilhos'),
               ),
 
               const SizedBox(height: 20),
@@ -222,8 +235,9 @@ class _CadastroComportamentoPageState
 
               const SizedBox(height: 5),
 
-              const FormField(
+              FormField(
                 hint: 'Ex.: abraço, música, brinquedo favorito...',
+                controller: widget.cadastro.text('o_que_acalma'),
               ),
 
               const SizedBox(height: 20),
@@ -260,8 +274,9 @@ class _CadastroComportamentoPageState
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CadastroRotinaPage(),
+                      builder: (context) => CadastroRotinaPage(
+                        cadastro: widget.cadastro,
+                      ),
                     ),
                   );
                 },

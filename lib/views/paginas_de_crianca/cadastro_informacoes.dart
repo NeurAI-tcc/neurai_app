@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/contents/child_step_indicador.dart';
 import 'package:neurai_app/views/paginas_de_crianca/reconhecimento_facial/reconhecimento_facial.dart';
 
@@ -7,7 +8,9 @@ import '../contents/continue_button.dart';
 import '../contents/text_area.dart';
 
 class CadastroInformacoesPage extends StatelessWidget {
-  const CadastroInformacoesPage({super.key});
+  const CadastroInformacoesPage({super.key, required this.cadastro});
+
+  final CadastroCriancaDraft cadastro;
 
   @override
   Widget build(BuildContext context) {
@@ -114,11 +117,12 @@ class CadastroInformacoesPage extends StatelessWidget {
 
               const SizedBox(height: 6),
 
-              const TextArea(
+              TextArea(
                 hint:
                     'Ex.: comportamentos específicos,\n'
                     'preferências, observações...',
                 maxLines: 4,
+                controller: cadastro.text('observacoes'),
               ),
 
               const SizedBox(height: 20),
@@ -201,8 +205,9 @@ class CadastroInformacoesPage extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const ReconhecimentoFacialPage(),
+                      builder: (context) => ReconhecimentoFacialPage(
+                        cadastro: cadastro,
+                      ),
                     ),
                   );
                 },

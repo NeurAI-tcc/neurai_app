@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide FormField;
+import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/contents/child_step_indicador.dart';
 import 'package:neurai_app/views/paginas_de_crianca/cadastro_saude.dart';
 
@@ -10,7 +11,9 @@ import '../contents/dropdown.dart';
 import '../contents/file_picker.dart';
 
 class CadastroDiagnosticoPage extends StatefulWidget {
-  const CadastroDiagnosticoPage({super.key});
+  const CadastroDiagnosticoPage({super.key, required this.cadastro});
+
+  final CadastroCriancaDraft cadastro;
 
   @override
   State<CadastroDiagnosticoPage> createState() =>
@@ -31,6 +34,16 @@ class _CadastroDiagnosticoPageState
 
   String? nomeArquivo;
 
+  @override
+  void initState() {
+    super.initState();
+    final valores = widget.cadastro.valores;
+    dataDiagnostico = widget.cadastro.date('data_diagnostico');
+    diagnosticoSelecionado = valores['diagnostico'] as String?;
+    nivelSuporteSelecionado = valores['nivel_suporte'] as String?;
+    nomeArquivo = valores['laudo_nome'] as String?;
+  }
+
   // =========================
   // SELECIONAR DATA
   // =========================
@@ -46,6 +59,7 @@ class _CadastroDiagnosticoPageState
     if (data != null) {
       setState(() {
         dataDiagnostico = data;
+        widget.cadastro.setValue('data_diagnostico', data);
       });
     }
   }
@@ -118,6 +132,7 @@ class _CadastroDiagnosticoPageState
     if (diagnostico != null) {
       setState(() {
         diagnosticoSelecionado = diagnostico;
+        widget.cadastro.setValue('diagnostico', diagnostico);
       });
     }
   }
@@ -190,6 +205,7 @@ class _CadastroDiagnosticoPageState
     if (nivel != null) {
       setState(() {
         nivelSuporteSelecionado = nivel;
+        widget.cadastro.setValue('nivel_suporte', nivel);
       });
     }
   }
@@ -203,11 +219,19 @@ class _CadastroDiagnosticoPageState
       final FilePickerResult? resultado =
         await FilePicker.platform.pickFiles(
       type: FileType.any,
+      withData: true,
     );
 
       if (resultado != null) {
+        final bytes = resultado.files.single.bytes;
+        if (bytes == null) {
+          throw const FormatException(
+            'Não foi possível ler os bytes do laudo selecionado.',
+          );
+        }
         setState(() {
           nomeArquivo = resultado.files.single.name;
+          widget.cadastro.laudoBytes = bytes;
         });
       }
     } catch (e) {
@@ -436,8 +460,9 @@ class _CadastroDiagnosticoPageState
                   Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const CadastroSaudePage(),
+                          builder: (context) => CadastroSaudePage(
+                            cadastro: widget.cadastro,
+                          ),
                         ),
                       );
                 },

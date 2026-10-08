@@ -4,7 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PhotoSelect extends StatefulWidget {
-  const PhotoSelect({super.key});
+  const PhotoSelect({
+    super.key,
+    this.onFotoSelecionada,
+  });
+
+  final ValueChanged<XFile>? onFotoSelecionada;
 
   @override
   State<PhotoSelect> createState() => _PhotoPickerState();
@@ -35,6 +40,7 @@ class _PhotoPickerState extends State<PhotoSelect> {
       setState(() {
         imagem = bytes;
       });
+      widget.onFotoSelecionada?.call(foto);
     } catch (e) {
       debugPrint('Erro ao selecionar imagem: $e');
 

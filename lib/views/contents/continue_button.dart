@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 
 class ContinueButton extends StatelessWidget {
   final VoidCallback? onPressed;
+  final String text;
 
-  const ContinueButton({
-    super.key,
-    this.onPressed,
-  });
+  const ContinueButton({super.key, this.onPressed, this.text = 'Continuar'});
 
   @override
   Widget build(BuildContext context) {
@@ -17,17 +15,14 @@ class ContinueButton extends StatelessWidget {
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
           backgroundColor: Colors.white,
-          side: const BorderSide(
-            color: Color(0xFF55B7F2),
-            width: 2,
-          ),
+          side: const BorderSide(color: Color(0xFF55B7F2), width: 2),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(15),
           ),
         ),
-        child: const Text(
-          'Continuar',
-          style: TextStyle(
+        child: Text(
+          text,
+          style: const TextStyle(
             color: Color(0xFF333333),
             fontSize: 13,
             fontWeight: FontWeight.bold,

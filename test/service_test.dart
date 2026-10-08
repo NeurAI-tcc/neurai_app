@@ -99,4 +99,31 @@ void main() {
 
     expect(() => service.login('user@test.com', 'wrong'), throwsException);
   });
+
+  test('AuthService envia cadastro completo para a rota de cadastro', () async {
+    late http.BaseRequest sentRequest;
+    final client = TestClient((request) async {
+      sentRequest = request;
+      return http.Response('', 201);
+    });
+    final service = AuthService(baseUrl: 'https://api.test', client: client);
+    final payload = {
+      'tipo_usuario': 'Responsavel',
+      'nome_completo': 'Responsável',
+      'email': 'responsavel@example.com',
+      'senha': 'senha-segura',
+      'valor': 50.0,
+      'perfil_crianca': {
+        'nome_completo': 'Criança',
+        'foto_sorrindo_url': 'AQID',
+      },
+    };
+
+    await service.cadastrarCompleto(payload);
+
+    expect(sentRequest.url.path, '/auth/cadastro/');
+    expect(sentRequest.method, 'POST');
+    expect(sentRequest.headers['content-type'], 'application/json');
+    expect(jsonDecode((sentRequest as http.Request).body), payload);
+  });
 }

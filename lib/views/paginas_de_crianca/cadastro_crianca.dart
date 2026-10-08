@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart' hide FormField;
+import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/contents/continue_button.dart';
 import 'package:neurai_app/views/contents/date_field.dart';
 import 'package:neurai_app/views/contents/dropdown.dart';
@@ -10,7 +11,9 @@ import 'package:neurai_app/views/contents/child_step_indicador.dart';
 import '../contents/form_field.dart';
 
 class CadastroCriancaPage extends StatefulWidget {
-  const CadastroCriancaPage({super.key});
+  const CadastroCriancaPage({super.key, required this.cadastro});
+
+  final CadastroCriancaDraft cadastro;
 
   @override
   State<CadastroCriancaPage> createState() => _CadastroCriancaPageState();
@@ -24,6 +27,13 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
 
   DateTime? dataNascimento;
   String? sexoSelecionado;
+
+  @override
+  void initState() {
+    super.initState();
+    dataNascimento = widget.cadastro.date('data_nascimento');
+    sexoSelecionado = widget.cadastro.valores['sexo'] as String?;
+  }
 
   // =========================
   // SELECIONAR DATA
@@ -40,6 +50,7 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
     if (data != null) {
       setState(() {
         dataNascimento = data;
+        widget.cadastro.setValue('data_nascimento', data);
       });
     }
   }
@@ -98,8 +109,27 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
     if (sexo != null) {
       setState(() {
         sexoSelecionado = sexo;
+        widget.cadastro.setValue('sexo', sexo);
       });
     }
+
+  }
+
+  void continuar() {
+    if (widget.cadastro.value('crianca_nome').isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Informe o nome da criança.')),
+      );
+      return;
+    }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CadastroDiagnosticoPage(
+          cadastro: widget.cadastro,
+        ),
+      ),
+    );
   }
 
   // =========================
@@ -204,7 +234,11 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
                   // FOTO
                   // =========================
 
-                  const PhotoSelect(),
+                  PhotoSelect(
+                    onFotoSelecionada: (foto) {
+                      widget.cadastro.fotoPerfil = foto;
+                    },
+                  ),
 
                   const SizedBox(height: 20),
 
@@ -223,9 +257,10 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
 
                   const SizedBox(height: 4),
 
-                  const FormField(
+                  FormField(
                     hint: 'Digite o nome completo',
                     icon: Icons.person,
+                    controller: widget.cadastro.text('crianca_nome'),
                   ),
 
                   const SizedBox(height: 12),
@@ -245,9 +280,10 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
 
                   const SizedBox(height: 4),
 
-                  const FormField(
+                  FormField(
                     hint: 'Como prefere chamar?',
                     icon: Icons.person,
+                    controller: widget.cadastro.text('nome_social'),
                   ),
 
                   const SizedBox(height: 12),
@@ -303,15 +339,7 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
                   // =========================
 
                   ContinueButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              const CadastroDiagnosticoPage(),
-                        ),
-                      );
-                    },
+                    onPressed: continuar,
                   ),
 
                   const SizedBox(height: 100),

@@ -1,10 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class PhotoCapture extends StatefulWidget {
-  final Function(File foto) onFotoSelecionada;
+  final ValueChanged<XFile> onFotoSelecionada;
 
   const PhotoCapture({
     super.key,
@@ -28,9 +26,7 @@ class _PhotoCaptureState extends State<PhotoCapture> {
       return;
     }
 
-    final File foto = File(imagem.path);
-
-    widget.onFotoSelecionada(foto);
+    widget.onFotoSelecionada(imagem);
   }
 
   @override

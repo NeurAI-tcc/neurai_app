@@ -22,20 +22,6 @@ class UsuarioController extends ChangeNotifier {
     );
   }
 
-  Future<bool> criarConta({
-    required String nomeCompleto,
-    required String email,
-    required String senha,
-  }) async {
-    return _executar(
-      () async => usuarioAtual = await _authService.criarConta(
-        nomeCompleto: nomeCompleto,
-        email: email,
-        senha: senha,
-      ),
-    );
-  }
-
   Future<void> carregarPerfilCompleto(String usuarioId) async {
     carregando = true;
     notifyListeners();

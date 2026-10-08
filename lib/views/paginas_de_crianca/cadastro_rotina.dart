@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/contents/child_step_indicador.dart';
 import 'package:neurai_app/views/paginas_de_crianca/cadastro_informacoes.dart';
 
@@ -10,7 +11,9 @@ import '../contents/text_area.dart';
 import '../contents/time_field.dart';
 
 class CadastroRotinaPage extends StatefulWidget {
-  const CadastroRotinaPage({super.key});
+  const CadastroRotinaPage({super.key, required this.cadastro});
+
+  final CadastroCriancaDraft cadastro;
 
   @override
   State<CadastroRotinaPage> createState() =>
@@ -28,6 +31,29 @@ class _CadastroRotinaPageState
 
   String? alimentacaoSelecionada;
 
+  @override
+  void initState() {
+    super.initState();
+    final valores = widget.cadastro.valores;
+    horarioAcordar = _parseTime(valores['horario_acordar'] as String?);
+    horarioDormir = _parseTime(valores['horario_dormir'] as String?);
+    fazSoneca = valores['faz_soneca'] as bool?;
+    seletividadeAlimentar = valores['seletividade_alimentar'] as bool?;
+    alimentacaoSelecionada = valores['alimentacao'] as String?;
+  }
+
+  TimeOfDay? _parseTime(String? value) {
+    if (value == null) return null;
+    final parts = value.split(':');
+    if (parts.length != 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null || hour > 23 || minute > 59) {
+      return null;
+    }
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
   // =========================
   // SELECIONAR HORÁRIO
   // =========================
@@ -41,6 +67,11 @@ class _CadastroRotinaPageState
     if (horario != null) {
       setState(() {
         horarioAcordar = horario;
+        widget.cadastro.setValue(
+          'horario_acordar',
+          '${horario.hour.toString().padLeft(2, '0')}:'
+              '${horario.minute.toString().padLeft(2, '0')}',
+        );
       });
     }
   }
@@ -54,6 +85,11 @@ class _CadastroRotinaPageState
     if (horario != null) {
       setState(() {
         horarioDormir = horario;
+        widget.cadastro.setValue(
+          'horario_dormir',
+          '${horario.hour.toString().padLeft(2, '0')}:'
+              '${horario.minute.toString().padLeft(2, '0')}',
+        );
       });
     }
   }
@@ -139,6 +175,7 @@ class _CadastroRotinaPageState
     if (resultado != null) {
       setState(() {
         alimentacaoSelecionada = resultado;
+        widget.cadastro.setValue('alimentacao', resultado);
       });
     }
   }
@@ -299,6 +336,7 @@ class _CadastroRotinaPageState
                     onTap: () {
                       setState(() {
                         fazSoneca = true;
+                        widget.cadastro.setValue('faz_soneca', true);
                       });
                     },
                   ),
@@ -309,6 +347,7 @@ class _CadastroRotinaPageState
                     onTap: () {
                       setState(() {
                         fazSoneca = false;
+                        widget.cadastro.setValue('faz_soneca', false);
                       });
                     },
                   ),
@@ -367,6 +406,10 @@ class _CadastroRotinaPageState
                     onTap: () {
                       setState(() {
                         seletividadeAlimentar = true;
+                        widget.cadastro.setValue(
+                          'seletividade_alimentar',
+                          true,
+                        );
                       });
                     },
                   ),
@@ -378,6 +421,10 @@ class _CadastroRotinaPageState
                     onTap: () {
                       setState(() {
                         seletividadeAlimentar = false;
+                        widget.cadastro.setValue(
+                          'seletividade_alimentar',
+                          false,
+                        );
                       });
                     },
                   ),
@@ -401,11 +448,14 @@ class _CadastroRotinaPageState
 
               const SizedBox(height: 6),
 
-              const TextArea(
+              TextArea(
                 hint:
                     'Ex.: terapia ocupacional, fonoaudiologia,\n'
                     'escola integral...',
                 maxLines: 3,
+                controller: widget.cadastro.text(
+                  'atividades_terapeuticas',
+                ),
               ),
 
               const SizedBox(height: 40),
@@ -419,8 +469,9 @@ class _CadastroRotinaPageState
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          const CadastroInformacoesPage(),
+                      builder: (context) => CadastroInformacoesPage(
+                        cadastro: widget.cadastro,
+                      ),
                     ),
                   );
                 },

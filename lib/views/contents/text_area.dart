@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 class TextArea extends StatelessWidget {
   final String hint;
   final int maxLines;
+  final TextEditingController? controller;
 
   const TextArea({
     super.key,
     required this.hint,
     this.maxLines = 3,
+    this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       maxLines: maxLines,
       style: const TextStyle(
         fontSize: 13,

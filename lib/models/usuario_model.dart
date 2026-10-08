@@ -140,7 +140,7 @@ class CriancaModel {
   List<String> get medicamentos => saude.medicamentos;
 
   factory CriancaModel.fromJson(Map<String, dynamic> json) => CriancaModel(
-    id: json['id'] as String? ?? '',
+    id: json['id']?.toString() ?? '',
     infoBasica: InfoBasica.fromJson(_map(json['info_basica']) ?? json),
     diagnostico: Diagnostico.fromJson(_map(json['diagnostico']) ?? json),
     saude: Saude.fromJson(_map(json['saude']) ?? json),

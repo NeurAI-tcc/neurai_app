@@ -1,6 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/contents/app_colors.dart';
 import 'package:neurai_app/views/contents/child_step_indicador.dart';
 import 'package:neurai_app/views/contents/continue_button.dart';
@@ -9,7 +9,9 @@ import 'package:neurai_app/views/contents/foto_capture.dart';
 import 'reconhecimento_final_page.dart';
 
 class ReconhecimentoFacialPage extends StatefulWidget {
-  const ReconhecimentoFacialPage({super.key});
+  const ReconhecimentoFacialPage({super.key, required this.cadastro});
+
+  final CadastroCriancaDraft cadastro;
 
   @override
   State<ReconhecimentoFacialPage> createState() =>
@@ -30,7 +32,7 @@ class _ReconhecimentoFacialPageState
   // 7 FOTOS
   // =========================
 
-  final List<File?> fotos = List<File?>.filled(7, null);
+  final List<XFile?> fotos = List<XFile?>.filled(7, null);
 
   // =========================
   // INFORMAÇÕES DAS ETAPAS
@@ -85,7 +87,7 @@ class _ReconhecimentoFacialPageState
   // FOTO SELECIONADA
   // =========================
 
-  void fotoSelecionada(File foto) {
+  void fotoSelecionada(XFile foto) {
     setState(() {
       fotos[etapaAtual - 1] = foto;
     });
@@ -121,10 +123,15 @@ class _ReconhecimentoFacialPageState
 
     // Se chegou aqui, as 7 fotos foram tiradas.
     // Abre a tela final.
+    widget.cadastro.fotos
+      ..clear()
+      ..addAll(fotos.whereType<XFile>());
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ReconhecimentoFinalPage(),
+        builder: (context) => ReconhecimentoFinalPage(
+          cadastro: widget.cadastro,
+        ),
       ),
     );
   }

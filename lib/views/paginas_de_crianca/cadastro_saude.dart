@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/paginas_de_crianca/cadastro_comportamental.dart';
 
 import '../contents/app_colors.dart';
@@ -10,7 +11,9 @@ import '../contents/option.dart';
 import '../contents/text_area.dart';
 
 class CadastroSaudePage extends StatefulWidget {
-  const CadastroSaudePage({super.key});
+  const CadastroSaudePage({super.key, required this.cadastro});
+
+  final CadastroCriancaDraft cadastro;
 
   @override
   State<CadastroSaudePage> createState() => _CadastroSaudePageState();
@@ -41,6 +44,23 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
   bool? possuiCrises;
 
   String? frequenciaSelecionada;
+
+  @override
+  void initState() {
+    super.initState();
+    final conditions = widget.cadastro.valores['condicoes_saude'];
+    if (conditions is List<String>) {
+      condicoesSelecionadas = [...conditions];
+    }
+    final allergies = widget.cadastro.valores['alergias'];
+    if (allergies is List<String>) {
+      alergiasSelecionadas = [...allergies];
+    }
+    usaMedicacao = widget.cadastro.valores['usa_medicacao'] as bool?;
+    possuiCrises = widget.cadastro.valores['possui_crises'] as bool?;
+    frequenciaSelecionada =
+        widget.cadastro.valores['frequencia_crises'] as String?;
+  }
 
   // =========================
   // SELECIONAR CONDIÇÕES
@@ -137,6 +157,7 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
     if (resultado != null) {
       setState(() {
         condicoesSelecionadas = resultado;
+        widget.cadastro.setValue('condicoes_saude', resultado);
       });
     }
   }
@@ -249,6 +270,7 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
     if (resultado != null) {
       setState(() {
         alergiasSelecionadas = resultado;
+        widget.cadastro.setValue('alergias', resultado);
       });
     }
   }
@@ -313,6 +335,7 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
     if (resultado != null) {
       setState(() {
         frequenciaSelecionada = resultado;
+        widget.cadastro.setValue('frequencia_crises', resultado);
       });
     }
   }
@@ -468,6 +491,7 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
                     onTap: () {
                       setState(() {
                         usaMedicacao = true;
+                        widget.cadastro.setValue('usa_medicacao', true);
                       });
                     },
                   ),
@@ -478,6 +502,7 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
                     onTap: () {
                       setState(() {
                         usaMedicacao = false;
+                        widget.cadastro.setValue('usa_medicacao', false);
                       });
                     },
                   ),
@@ -501,9 +526,10 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
 
               const SizedBox(height: 6),
 
-              const TextArea(
+              TextArea(
                 hint: 'Ex. Ritalina 10mg - 08h e 14h',
                 maxLines: 3,
+                controller: widget.cadastro.text('medicamentos'),
               ),
 
               const SizedBox(height: 20),
@@ -533,6 +559,7 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
                     onTap: () {
                       setState(() {
                         possuiCrises = true;
+                        widget.cadastro.setValue('possui_crises', true);
                       });
                     },
                   ),
@@ -543,6 +570,7 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
                     onTap: () {
                       setState(() {
                         possuiCrises = false;
+                        widget.cadastro.setValue('possui_crises', false);
                       });
                     },
                   ),
@@ -583,8 +611,9 @@ class _CadastroSaudePageState extends State<CadastroSaudePage> {
                   Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              const CadastroComportamentoPage(),
+                          builder: (context) => CadastroComportamentoPage(
+                            cadastro: widget.cadastro,
+                          ),
                         ),
                       );
                 },

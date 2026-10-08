@@ -1,12 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/contents/app_colors.dart';
 import 'package:neurai_app/views/contents/continue_button.dart';
 
 
-class ReconhecimentoFinalPage extends StatelessWidget {
+class ReconhecimentoFinalPage extends StatefulWidget {
   const ReconhecimentoFinalPage({
     super.key,
+    required this.cadastro,
   });
+
+  final CadastroCriancaDraft cadastro;
+
+  @override
+  State<ReconhecimentoFinalPage> createState() =>
+      _ReconhecimentoFinalPageState();
+}
+
+class _ReconhecimentoFinalPageState extends State<ReconhecimentoFinalPage> {
+  bool _salvando = false;
+  bool _salvo = false;
+
+  Future<void> _finalizarCadastro() async {
+    if (_salvando) return;
+    setState(() => _salvando = true);
+    try {
+      await widget.cadastro.salvar();
+      if (mounted) setState(() => _salvo = true);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Não foi possível concluir o cadastro: $error'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _salvando = false);
+    }
+  }
+
+  void _voltarAoInicio() {
+    widget.cadastro.dispose();
+    Navigator.popUntil(context, (route) => route.isFirst);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -154,9 +191,11 @@ class ReconhecimentoFinalPage extends StatelessWidget {
                   // MENSAGEM
                   // =========================
 
-                  const Center(
+                  Center(
                     child: Text(
-                      'Fotos registradas com sucesso',
+                      _salvo
+                          ? 'Cadastro salvo com sucesso'
+                          : 'Envie seus dados para concluir o cadastro',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 12,
@@ -167,9 +206,11 @@ class ReconhecimentoFinalPage extends StatelessWidget {
 
                   const SizedBox(height: 5),
 
-                  const Center(
+                  Center(
                     child: Text(
-                      'A identidade foi confirmada',
+                      _salvo
+                          ? 'Os dados foram enviados para a API.'
+                          : 'As fotos e informações serão enviadas ao servidor.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 11,
@@ -185,9 +226,16 @@ class ReconhecimentoFinalPage extends StatelessWidget {
                   // =========================
 
                   ContinueButton(
-                    onPressed: () {
-                      // Próxima tela
-                    },
+                    onPressed: _salvando
+                        ? null
+                        : _salvo
+                        ? _voltarAoInicio
+                        : _finalizarCadastro,
+                    text: _salvando
+                        ? 'Enviando cadastro...'
+                        : _salvo
+                        ? 'Voltar ao início'
+                        : 'Finalizar cadastro',
                   ),
 
                   const SizedBox(height: 30),
