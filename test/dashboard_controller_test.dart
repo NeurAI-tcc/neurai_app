@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:app_teste_tcc/controllers/dashboard_controller.dart';
-import 'package:app_teste_tcc/models/alerta_model.dart';
-import 'package:app_teste_tcc/models/camera_frame_model.dart';
-import 'package:app_teste_tcc/services/alert_service.dart';
-import 'package:app_teste_tcc/services/api_service.dart';
-import 'package:app_teste_tcc/services/camera_stream_service.dart';
+import 'package:neurai_app/controllers/dashboard_controller.dart';
+import 'package:neurai_app/models/alerta_model.dart';
+import 'package:neurai_app/models/camera_frame_model.dart';
+import 'package:neurai_app/services/alert_service.dart';
+import 'package:neurai_app/services/api_service.dart';
+import 'package:neurai_app/services/camera_stream_service.dart';
 
 class DashboardTestClient extends http.BaseClient {
   @override

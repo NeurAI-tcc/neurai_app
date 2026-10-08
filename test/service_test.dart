@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:app_teste_tcc/services/alert_service.dart';
-import 'package:app_teste_tcc/services/api_service.dart';
-import 'package:app_teste_tcc/services/auth_service.dart';
-import 'package:app_teste_tcc/services/report_service.dart';
+import 'package:neurai_app/services/alert_service.dart';
+import 'package:neurai_app/services/api_service.dart';
+import 'package:neurai_app/services/auth_service.dart';
+import 'package:neurai_app/services/report_service.dart';
 
 class TestClient extends http.BaseClient {
   final Future<http.Response> Function(http.BaseRequest request) handler;

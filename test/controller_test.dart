@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:app_teste_tcc/controllers/alertas_controller.dart';
-import 'package:app_teste_tcc/models/alerta_model.dart';
-import 'package:app_teste_tcc/services/alert_service.dart';
+import 'package:neurai_app/controllers/alertas_controller.dart';
+import 'package:neurai_app/models/alerta_model.dart';
+import 'package:neurai_app/services/alert_service.dart';
 
 class FakeAlertService extends AlertService {
   FakeAlertService(this.pages);

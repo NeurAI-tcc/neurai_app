@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:app_teste_tcc/main.dart';
+import 'package:neurai_app/main.dart';
 
 void main() {
   testWidgets('renderiza a tela inicial', (WidgetTester tester) async {

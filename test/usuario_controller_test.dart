@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
-import 'package:app_teste_tcc/controllers/usuario_controller.dart';
-import 'package:app_teste_tcc/services/api_service.dart';
+import 'package:neurai_app/controllers/usuario_controller.dart';
+import 'package:neurai_app/services/api_service.dart';
 
 class UsuarioTestClient extends http.BaseClient {
   @override

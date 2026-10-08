@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:app_teste_tcc/models/alerta_model.dart';
-import 'package:app_teste_tcc/models/camera_frame_model.dart';
-import 'package:app_teste_tcc/models/usuario_model.dart';
+import 'package:neurai_app/models/alerta_model.dart';
+import 'package:neurai_app/models/camera_frame_model.dart';
+import 'package:neurai_app/models/usuario_model.dart';
 
 void main() {
   group('modelos', () {
