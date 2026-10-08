@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:neurai/crianca/cadastro_crianca.dart';
+import 'package:neurai_app/views/paginas_de_crianca/cadastro_crianca.dart';
 
 import 'contents/app_text_field.dart';
 import 'contents/app_password_field.dart';
