@@ -1,9 +1,9 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide FormField;
-import 'package:test_app/crianca/cadastro_saude.dart';
+import 'package:neurai_app/views/contents/child_step_indicador.dart';
+import 'package:neurai_app/views/paginas_de_crianca/cadastro_saude.dart';
 
 import '../contents/app_colors.dart';
-import '../contents/child_step_indicator.dart';
 import '../contents/continue_button.dart';
 import '../contents/date_field.dart';
 import '../contents/dropdown.dart';

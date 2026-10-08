@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:neurai_app/views/contents/child_step_indicador.dart';
-import 'package:test_app/reconhecimento_facial/reconhecimento_facial.dart';
+import 'package:neurai_app/views/paginas_de_crianca/reconhecimento_facial/reconhecimento_facial.dart';
 
 import '../contents/app_colors.dart';
 import '../contents/continue_button.dart';
