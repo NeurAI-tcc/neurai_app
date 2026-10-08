@@ -1,30 +1,55 @@
 import 'package:flutter/material.dart';
-import '../contents/app_colors.dart';
+import 'app_colors.dart';
 
-class AppTextField extends StatelessWidget {
+class AppPasswordField extends StatefulWidget {
   final String hint;
-  final IconData icon;
   final TextEditingController? controller;
 
-  const AppTextField({
+  const AppPasswordField({
     super.key,
-    required this.hint,
-    required this.icon,
+    this.hint = '••••••••••',
     this.controller,
   });
 
   @override
+  State<AppPasswordField> createState() =>
+      _AppPasswordFieldState();
+}
+
+class _AppPasswordFieldState extends State<AppPasswordField> {
+  bool obscureText = true;
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
+      controller: widget.controller,
+
+      obscureText: obscureText,
+
       decoration: InputDecoration(
-        hintText: hint,
+        hintText: widget.hint,
         hintStyle: TextStyle(color: Color.fromARGB(184, 158, 158, 158)),
 
-        prefixIcon: Icon(
-          icon,
+        prefixIcon: const Icon(
+          Icons.lock_outline,
           size: 26,
-          color: const Color.fromARGB(132, 158, 158, 158),
+          color: Color.fromARGB(132, 158, 158, 158),
+        ),
+
+        suffixIcon: IconButton(
+          icon: Icon(
+            obscureText
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            size: 26,
+            color: const Color.fromARGB(132, 158, 158, 158),
+          ),
+
+          onPressed: () {
+            setState(() {
+              obscureText = !obscureText;
+            });
+          },
         ),
 
         filled: true,

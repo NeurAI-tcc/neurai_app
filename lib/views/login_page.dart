@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:neurai_app/cadastro_page.dart';
-import 'package:neurai_app/esqueceu_senha.dart';
+import 'package:neurai_app/views/cadastro_page.dart';
+import 'package:neurai_app/views/esqueceu_senha.dart';
 
-import '../contents/app_text_field.dart';
-import '../contents/app_password_field.dart';
-import '../contents/app_button.dart';
-import '../contents/app_colors.dart';
+import 'contents/app_text_field.dart';
+import 'contents/app_password_field.dart';
+import 'contents/app_button.dart';
+import 'contents/app_colors.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
