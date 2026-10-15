@@ -32,19 +32,26 @@ class CameraStreamService {
 
   Future<void> _open() async {
     if (_disposed || _cameraId == null || _token == null) return;
-    await _channel?.sink.close();
-    final uri = baseUri.replace(
-      queryParameters: {'camera_id': _cameraId!, 'token': _token!},
-    );
-    final channel = WebSocketChannel.connect(uri);
-    _channel = channel;
-    channel.stream.listen(
-      _onMessage,
-      onError: (_) => _scheduleReconnect(),
-      onDone: _scheduleReconnect,
-      cancelOnError: true,
-    );
-  }
+
+  await _channel?.sink.close();
+
+  final uri = baseUri.replace(
+    path: '${baseUri.path.replaceFirst(RegExp(r'/$'), '')}/${Uri.encodeComponent(_cameraId!)}/',
+    queryParameters: {
+      'token': _token!,
+    },
+  );
+
+  final channel = WebSocketChannel.connect(uri);
+  _channel = channel;
+
+  channel.stream.listen(
+    _onMessage,
+    onError: (_) => _scheduleReconnect(),
+    onDone: _scheduleReconnect,
+    cancelOnError: true,
+  );
+}
 
   void _onMessage(dynamic message) {
     try {

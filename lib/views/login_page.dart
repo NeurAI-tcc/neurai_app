@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:neurai_app/views/cadastro_page.dart';
 import 'package:neurai_app/views/esqueceu_senha.dart';
+import 'package:neurai_app/views/home.dart';
 
 import 'contents/app_text_field.dart';
 import 'contents/app_password_field.dart';
 import 'contents/app_button.dart';
 import 'contents/app_colors.dart';
 
+
 class LoginPage extends StatelessWidget {
+
   const LoginPage({super.key});
+  
 
   @override
   Widget build(BuildContext context) {
@@ -139,10 +143,11 @@ class LoginPage extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const CadastroPage()),
-                          );
-
-                          },
+                          MaterialPageRoute(
+                            builder: (context) => const HomePage(cameraId: '', token: '',),
+                          ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 17),
