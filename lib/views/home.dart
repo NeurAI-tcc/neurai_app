@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 
 import 'contents/camera_ao_vivo.dart';
+import 'contents/home_bottom_nav.dart';
 
 class HomePage extends StatelessWidget {
   final String cameraId;
@@ -13,12 +13,12 @@ class HomePage extends StatelessWidget {
     required this.token,
   });
 
-  final String cameraNome = 'Câmera da sala';
+  static const String cameraNome = 'Câmera da sala';
 
   static const Color fundo = Color(0xFFE8F6FF);
   static const Color azul = Color(0xFF5298FF);
-  static const Color turquesa = Color(0xFF62D4CB);
-
+  static const Color texto = Color(0xFF24364B);
+  static const Color roxo = Color(0xFF8054D9);
 
   @override
   Widget build(BuildContext context) {
@@ -26,45 +26,54 @@ class HomePage extends StatelessWidget {
       backgroundColor: fundo,
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(15, 15, 15, 20),
+          padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
           children: [
             // CABEÇALHO
             Row(
-              children: const [
-                Icon(
+              children: [
+                const Icon(
                   Icons.psychology_outlined,
                   color: Color(0xFF46C9CE),
-                  size: 30,
+                  size: 29,
                 ),
-                SizedBox(width: 5),
-                Text(
+                const SizedBox(width: 4),
+                const Text(
                   'NeurAI',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 23,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF24364B),
+                    color: texto,
+                    letterSpacing: -0.8,
                   ),
                 ),
-                Spacer(),
-                CircleAvatar(
-                  radius: 14,
-                  backgroundColor: azul,
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 20,
+                const Spacer(),
+                Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: azul, width: 1),
+                  ),
+                  child: const CircleAvatar(
+                    radius: 11,
+                    backgroundColor: Color(0xFFD5EFFF),
+                    child: Icon(
+                      Icons.person,
+                      size: 17,
+                      color: azul,
+                    ),
                   ),
                 ),
               ],
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 10),
 
             const Text(
               'Olá, Ariana!',
               style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.bold,
+                color: Colors.black87,
               ),
             ),
 
@@ -73,23 +82,23 @@ class HomePage extends StatelessWidget {
             const Text(
               'Vamos cuidar juntos hoje.',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 11,
                 color: Colors.black54,
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: 11),
 
-            // CARTÃO DA CÂMERA
+            // MONITORAMENTO AO VIVO
             Container(
               padding: const EdgeInsets.all(9),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: azul),
+                borderRadius: BorderRadius.circular(19),
+                border: Border.all(color: azul, width: 1),
                 boxShadow: [
                   BoxShadow(
-                    color: azul.withValues(alpha: 0.15),
+                    color: azul.withValues(alpha: 0.18),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -98,17 +107,17 @@ class HomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Monitoramento ao vivo',
                     style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade800,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF555555),
                     ),
                   ),
 
-                  const SizedBox(height: 7),
+                  const SizedBox(height: 6),
 
-                  // ESTE RETÂNGULO ABRE A CÂMERA
                   InkWell(
                     borderRadius: BorderRadius.circular(12),
                     onTap: () {
@@ -123,65 +132,52 @@ class HomePage extends StatelessWidget {
                         ),
                       );
                     },
-                    child: Container(
-                      height: 132,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFD5EFFF),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Stack(
-                        children: [
-                          const Center(
-                            child: Icon(
-                              Icons.videocam_outlined,
-                              size: 55,
-                              color: Color(0xFF5298FF),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: SizedBox(
+                        width: double.infinity,
+                        height: 132,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            CameraStreamPreview(
+                              cameraId: cameraId,
+                              token: token,
                             ),
-                          ),
 
-                          Positioned(
-                            left: 8,
-                            bottom: 8,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Row(
-                                children: [
-                                  Icon(
-                                    Icons.circle,
-                                    size: 7,
-                                    color: Colors.red,
+                            Positioned(
+                              left: 7,
+                              bottom: 7,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 7,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Text(
+                                  '🔴 AO VIVO',
+                                  style: TextStyle(
+                                    fontSize: 8,
+                                    color: Colors.white,
                                   ),
-                                  SizedBox(width: 5),
-                                  Text(
-                                    'AO VIVO',
-                                    style: TextStyle(
-                                      fontSize: 9,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
 
-                          const Positioned(
-                            right: 8,
-                            top: 8,
-                            child: Icon(
-                              Icons.fullscreen,
-                              color: Colors.white,
-                              size: 22,
+                            const Positioned(
+                              right: 6,
+                              top: 6,
+                              child: Icon(
+                                Icons.fullscreen,
+                                color: Colors.white,
+                                size: 22,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -189,24 +185,26 @@ class HomePage extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 9),
 
-            // STATUS
+            // STATUS: TUDO TRANQUILO
             _statusCard(
               icone: Icons.verified_user_outlined,
               titulo: 'Tudo tranquilo',
-              descricao: 'Nenhuma situação de risco detectada.',
+              descricao:
+                  'AO VIVO\nNenhuma situação de risco detectada.',
               cor: const Color(0xFF078653),
               fundoIcone: const Color(0xFFC8F5D9),
             ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 9),
 
+            // ÚLTIMO ALERTA
             _statusCard(
               icone: Icons.gpp_maybe_outlined,
               titulo: 'Último alerta',
               descricao: 'Hoje, 10:32\nSaiu da área segura',
-              cor: Colors.red.shade800,
+              cor: const Color(0xFFB60000),
               fundoIcone: const Color(0xFFFFD6D6),
             ),
 
@@ -214,6 +212,7 @@ class HomePage extends StatelessWidget {
 
             // RESUMO DO DIA
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: _resumoCard(
@@ -221,49 +220,54 @@ class HomePage extends StatelessWidget {
                     titulo: 'Eventos hoje',
                     valor: '3 eventos',
                     acao: 'Ver histórico →',
+                    cor: roxo,
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 7),
                 Expanded(
                   child: _resumoCard(
                     icone: Icons.access_time,
-                    titulo: 'Tempo acompanhado',
+                    titulo: 'Tempo\nacompanhado',
                     valor: '2h 45m',
                     acao: 'Ver relatório →',
+                    cor: azul,
                   ),
                 ),
               ],
             ),
+
+            const SizedBox(height: 8),
           ],
         ),
       ),
 
-      // MENU INFERIOR
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(16),
-          ),
-          border: Border.all(color: azul),
-        ),
-        child: SafeArea(
-          top: false,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _menuItem(Icons.home_outlined, 'Início', true),
-              _menuItem(Icons.history, 'Histórico', false),
-              _menuItem(Icons.calendar_month, 'Agenda', false),
-              _menuItem(Icons.edit_note, 'Relatórios', false),
-              _menuItem(Icons.person_outline, 'Perfil', false),
-            ],
-          ),
-        ),
+      // MENU INFERIOR REUTILIZÁVEL
+      bottomNavigationBar: HomeBottomNav(
+        paginaSelecionada: 0,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              // Página inicial
+              break;
+            case 1:
+              // TODO: abrir Histórico
+              break;
+            case 2:
+              // TODO: abrir Agenda
+              break;
+            case 3:
+              // TODO: abrir Relatórios
+              break;
+            case 4:
+              // TODO: abrir Perfil
+              break;
+          }
+        },
       ),
     );
   }
 
+  // CARTÕES DE STATUS
   static Widget _statusCard({
     required IconData icone,
     required String titulo,
@@ -272,16 +276,19 @@ class HomePage extends StatelessWidget {
     required Color fundoIcone,
   }) {
     return Container(
-      padding: const EdgeInsets.all(9),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: 8,
+      ),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: azul),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: azul, width: 1),
         boxShadow: [
           BoxShadow(
             color: azul.withValues(alpha: 0.12),
-            blurRadius: 6,
-            offset: const Offset(0, 3),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -294,7 +301,11 @@ class HomePage extends StatelessWidget {
               color: fundoIcone,
               borderRadius: BorderRadius.circular(9),
             ),
-            child: Icon(icone, color: cor, size: 27),
+            child: Icon(
+              icone,
+              color: cor,
+              size: 27,
+            ),
           ),
           const SizedBox(width: 9),
           Expanded(
@@ -309,10 +320,12 @@ class HomePage extends StatelessWidget {
                     color: cor,
                   ),
                 ),
+                const SizedBox(height: 1),
                 Text(
                   descricao,
                   style: const TextStyle(
                     fontSize: 9,
+                    height: 1.25,
                     color: Colors.black54,
                   ),
                 ),
@@ -324,49 +337,75 @@ class HomePage extends StatelessWidget {
     );
   }
 
+  // CARTÕES DE RESUMO
   static Widget _resumoCard({
     required IconData icone,
     required String titulo,
     required String valor,
     required String acao,
+    required Color cor,
   }) {
     return Container(
-      height: 100,
+      height: 78,
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: azul),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: azul, width: 1),
+        boxShadow: [
+          BoxShadow(
+            color: azul.withValues(alpha: 0.10),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icone, color: const Color(0xFF8A63E8), size: 19),
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: cor.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icone,
+                  color: cor,
+                  size: 18,
+                ),
+              ),
               const SizedBox(width: 5),
               Expanded(
                 child: Text(
                   titulo,
-                  style: const TextStyle(fontSize: 9),
+                  style: const TextStyle(
+                    fontSize: 9,
+                    height: 1.05,
+                    color: Colors.black54,
+                  ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const Spacer(),
           Text(
             valor,
             style: const TextStyle(
-              fontSize: 13,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
+              color: Color(0xFF333333),
             ),
           ),
           const Spacer(),
           Center(
             child: Text(
               acao,
-              style: const TextStyle(
-                color: Color(0xFF8054D9),
+              style: TextStyle(
+                color: cor == azul ? azul : roxo,
                 fontSize: 9,
                 fontWeight: FontWeight.bold,
               ),
@@ -376,35 +415,31 @@ class HomePage extends StatelessWidget {
       ),
     );
   }
+}
 
-  static Widget _menuItem(
-    IconData icone,
-    String titulo,
-    bool selecionado,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 9),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            icone,
-            size: 22,
-            color: selecionado
-                ? const Color(0xFF4AA9C7)
-                : Colors.grey,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            titulo,
-            style: TextStyle(
-              fontSize: 9,
-              color: selecionado
-                  ? const Color(0xFF4AA9C7)
-                  : Colors.grey,
-            ),
-          ),
-        ],
+// PRÉVIA DA CÂMERA
+class CameraStreamPreview extends StatelessWidget {
+  final String cameraId;
+  final String token;
+
+  const CameraStreamPreview({
+    super.key,
+    required this.cameraId,
+    required this.token,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Substitua pelo widget que exibe a transmissão real.
+    // Este conteúdo é apenas um placeholder visual.
+    return Container(
+      color: Colors.black12,
+      child: const Center(
+        child: Icon(
+          Icons.videocam,
+          size: 50,
+          color: Colors.black38,
+        ),
       ),
     );
   }
