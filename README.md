@@ -5,10 +5,13 @@ A new Flutter project.
 ## Cadastro e API
 
 O cadastro mantém os dados do responsável no app enquanto a criança e as
-capturas faciais são preenchidas. Somente ao finalizar é enviado um único
-`POST /auth/cadastro/` com os dados da conta, o objeto `perfil_crianca` e
-`foto_sorrindo_url` em Base64. A API deve decodificar essa foto para armazená-la
-como binário e persistir o documento completo.
+capturas faciais e os dados da câmera são preenchidos. Ao tocar em
+`Cadastrar câmera`, o app envia `ip_camera` junto aos dados da conta e ao objeto
+`perfil_crianca` em `POST /auth/cadastro/`. Em seguida, autentica o responsável
+e envia `endereco_ip`, `nome_camara`, `localizacao` e `modelo` para
+`POST /camera/`, que cria o registro da câmera e atualiza o IP do responsável.
+As fotos são enviadas em Base64; a API deve decodificá-las para armazená-las
+como binário.
 
 O endereço padrão da API é `http://192.168.0.65:8000/api`. Para apontar o app
 para outro host, configure a URL base na execução:

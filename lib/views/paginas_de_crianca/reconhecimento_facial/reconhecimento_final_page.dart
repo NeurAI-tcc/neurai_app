@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 import 'package:neurai_app/views/contents/app_colors.dart';
 import 'package:neurai_app/views/contents/continue_button.dart';
+import 'package:neurai_app/views/paginas_de_crianca/cadastro_camera.dart';
 
 
 class ReconhecimentoFinalPage extends StatefulWidget {
@@ -18,25 +19,17 @@ class ReconhecimentoFinalPage extends StatefulWidget {
 }
 
 class _ReconhecimentoFinalPageState extends State<ReconhecimentoFinalPage> {
-  bool _salvando = false;
   bool _salvo = false;
 
-  Future<void> _finalizarCadastro() async {
-    if (_salvando) return;
-    setState(() => _salvando = true);
-    try {
-      await widget.cadastro.salvar();
-      if (mounted) setState(() => _salvo = true);
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Não foi possível concluir o cadastro: $error'),
-          ),
-        );
-      }
-    } finally {
-      if (mounted) setState(() => _salvando = false);
+  Future<void> _cadastrarCamera() async {
+    final cadastroConcluido = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CadastroCameraPage(cadastro: widget.cadastro),
+      ),
+    );
+    if (cadastroConcluido == true && mounted) {
+      setState(() => _salvo = true);
     }
   }
 
@@ -225,18 +218,10 @@ class _ReconhecimentoFinalPageState extends State<ReconhecimentoFinalPage> {
                   // BOTÃO
                   // =========================
 
-                  ContinueButton(
-                    onPressed: _salvando
-                        ? null
-                        : _salvo
-                        ? _voltarAoInicio
-                        : _finalizarCadastro,
-                    text: _salvando
-                        ? 'Enviando cadastro...'
-                        : _salvo
-                        ? 'Voltar ao início'
-                        : 'Finalizar cadastro',
-                  ),
+                                  ContinueButton(
+                                    onPressed: _salvo ? _voltarAoInicio : _cadastrarCamera,
+                                    text: _salvo ? 'Voltar ao início' : 'Cadastrar câmera',
+                                  ),
 
                   const SizedBox(height: 30),
                 ],

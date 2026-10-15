@@ -5,18 +5,24 @@ class AppTextField extends StatelessWidget {
   final String hint;
   final IconData icon;
   final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final ValueChanged<String>? onChanged;
 
   const AppTextField({
     super.key,
     required this.hint,
     required this.icon,
     this.controller,
+    this.validator,
+    this.onChanged,
   });
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
+      validator: validator,
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyle(color: Color.fromARGB(184, 158, 158, 158)),

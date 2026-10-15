@@ -6,6 +6,7 @@ class FormField extends StatelessWidget {
   final VoidCallback? onTap;
   final bool readOnly;
   final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
 
   const FormField({
     super.key,
@@ -14,6 +15,7 @@ class FormField extends StatelessWidget {
     this.onTap,
     this.readOnly = false,
     this.controller,
+    this.onChanged,
   });
 
   @override
@@ -31,6 +33,7 @@ class FormField extends StatelessWidget {
         controller: controller,
         readOnly: readOnly,
         onTap: onTap,
+        onChanged: onChanged,
         style: const TextStyle(
           fontSize: 12,
         ),

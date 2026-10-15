@@ -15,6 +15,7 @@ class CadastroPage extends StatefulWidget {
 }
 
 class _CadastroPageState extends State<CadastroPage> {
+  final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _senhaController = TextEditingController();
@@ -28,13 +29,11 @@ class _CadastroPageState extends State<CadastroPage> {
   }
 
   void _continuarCadastro() {
+    if (!_formKey.currentState!.validate()) return;
+
     final nome = _nomeController.text.trim();
     final email = _emailController.text.trim();
     final senha = _senhaController.text;
-    if (nome.isEmpty || email.isEmpty || senha.isEmpty) {
-      _mostrarErro('Preencha nome, e-mail e senha.');
-      return;
-    }
 
     Navigator.push(
       context,
@@ -50,12 +49,6 @@ class _CadastroPageState extends State<CadastroPage> {
     );
   }
 
-  void _mostrarErro(String mensagem) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensagem)),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -65,8 +58,11 @@ class _CadastroPageState extends State<CadastroPage> {
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 37),
-              child: Column(
-                children: [
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
                   Row(
                     children: [
                       GestureDetector(
@@ -115,6 +111,14 @@ class _CadastroPageState extends State<CadastroPage> {
                     hint: 'Nome Completo',
                     icon: Icons.person_outline,
                     controller: _nomeController,
+                    validator: (value) {
+                      final nome = value?.trim() ?? '';
+                      if (nome.isEmpty) return 'Informe seu nome completo.';
+                      if (nome.length < 3) {
+                        return 'O nome deve ter pelo menos 3 caracteres.';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(height: 14),
                   const _FieldLabel('E-mail'),
@@ -123,18 +127,34 @@ class _CadastroPageState extends State<CadastroPage> {
                     hint: 'seu@email.com',
                     icon: Icons.email_outlined,
                     controller: _emailController,
+                    validator: (value) => value == null || value.trim().isEmpty
+                        ? 'Informe seu e-mail.'
+                        : null,
                   ),
                   const SizedBox(height: 14),
                   const _FieldLabel('Senha'),
                   const SizedBox(height: 5),
-                  AppPasswordField(controller: _senhaController),
+                  AppPasswordField(
+                    controller: _senhaController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Informe sua senha.';
+                      }
+                      if (value.length < 6) {
+                        return 'A senha deve ter pelo menos 6 caracteres.';
+                      }
+                      return null;
+                    },
+                  ),
                   const SizedBox(height: 14),
                   AppButton(
                     text: 'Continuar cadastro',
                     onPressed: _continuarCadastro,
                   ),
                   const SizedBox(height: 18),
-                ],
+                    ],
+                  ),
+                ),
               ),
             ),
           ),

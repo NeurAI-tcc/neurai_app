@@ -26,6 +26,11 @@ class CadastroCriancaDraft {
   final List<XFile> fotos = [];
   XFile? fotoPerfil;
   Uint8List? laudoBytes;
+  Map<String, String>? camera;
+
+  void setCamera(Map<String, String> dados) {
+    camera = Map.unmodifiable(dados);
+  }
 
   TextEditingController text(String key) =>
       _textControllers.putIfAbsent(key, TextEditingController.new);
@@ -44,20 +49,33 @@ class CadastroCriancaDraft {
     'email': email,
     'senha': senha,
     'valor': 50.0,
+    if (camera != null) 'camera': camera,
     'perfil_crianca': {
       'nome_completo': value('crianca_nome'),
+      'nome_social': value('nome_social'),
+      'data_nascimento': date('data_nascimento')?.toIso8601String(),
+      'sexo': valores['sexo'] as String?,
+      'diagnostico': valores['diagnostico'] as String?,
+      'data_diagnostico': date('data_diagnostico')?.toIso8601String(),
+      'nivel_suporte': valores['nivel_suporte'] as String?,
+      'frequencia_crises': valores['frequencia_crises'] as String?,
       'condicoes': valores['condicoes_saude'] ?? <String>[],
       'alergias': valores['alergias'] ?? <String>[],
       'usa_medicamentos': valores['usa_medicacao'] ?? false,
       'medicacoes': _medicacoes(value('medicamentos')),
       'possui_crises_epilepticas': valores['possui_crises'] ?? false,
+      'comunicacao': valores['comunicacao'] as String?,
       'atividades_favoritas': _splitList(value('atividades_favoritas')),
       'gatilhos': _splitList(value('gatilhos')),
       'o_que_ajuda_acalmar': _splitList(value('o_que_acalma')),
+      'horario_acordar': valores['horario_acordar'] as String?,
+      'horario_dormir': valores['horario_dormir'] as String?,
       'possui_sonecas': valores['faz_soneca'] ?? false,
       'alimentacao': _splitList(valores['alimentacao'] as String? ?? ''),
       'seletividade_alimentar': valores['seletividade_alimentar'] ?? false,
       'atividades': _splitList(value('atividades_terapeuticas')),
+      'observacoes': value('observacoes'),
+      'laudo_nome': valores['laudo_nome'] as String?,
       'foto_perfil_url': await _encodeImage(fotoPerfil),
       'foto_frente_url': await _encodePhoto(0),
       'foto_direita_url': await _encodePhoto(1),
@@ -75,6 +93,13 @@ class CadastroCriancaDraft {
     }
     if (fotos.length != 7) {
       throw StateError('Conclua as sete etapas de captura da câmera.');
+    }
+    final dadosCamera = camera;
+    if (dadosCamera == null ||
+        ['endereco_ip', 'nome', 'localizacao', 'modelo'].any(
+          (campo) => dadosCamera[campo]?.trim().isNotEmpty != true,
+        )) {
+      throw StateError('Informe todos os dados da câmera.');
     }
 
     await _authService.cadastrarCompleto(await toJson());

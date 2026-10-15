@@ -27,6 +27,7 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
 
   DateTime? dataNascimento;
   String? sexoSelecionado;
+  String? erroNomeCrianca;
 
   @override
   void initState() {
@@ -116,10 +117,13 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
   }
 
   void continuar() {
-    if (widget.cadastro.value('crianca_nome').isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Informe o nome da criança.')),
-      );
+    final nome = widget.cadastro.value('crianca_nome');
+    if (nome.isEmpty || nome.length < 3) {
+      setState(() {
+        erroNomeCrianca = nome.isEmpty
+            ? 'Informe o nome completo da criança.'
+            : 'O nome deve ter pelo menos 3 caracteres.';
+      });
       return;
     }
     Navigator.push(
@@ -261,7 +265,22 @@ class _CadastroCriancaPageState extends State<CadastroCriancaPage> {
                     hint: 'Digite o nome completo',
                     icon: Icons.person,
                     controller: widget.cadastro.text('crianca_nome'),
+                    onChanged: (value) {
+                      if (erroNomeCrianca != null && value.trim().length >= 3) {
+                        setState(() => erroNomeCrianca = null);
+                      }
+                    },
                   ),
+                  if (erroNomeCrianca != null) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      erroNomeCrianca!,
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
 
                   const SizedBox(height: 12),
 

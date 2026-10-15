@@ -4,11 +4,13 @@ import 'app_colors.dart';
 class AppPasswordField extends StatefulWidget {
   final String hint;
   final TextEditingController? controller;
+  final String? Function(String?)? validator;
 
   const AppPasswordField({
     super.key,
     this.hint = '••••••••••',
     this.controller,
+    this.validator,
   });
 
   @override
@@ -21,8 +23,9 @@ class _AppPasswordFieldState extends State<AppPasswordField> {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: widget.controller,
+      validator: widget.validator,
 
       obscureText: obscureText,
 

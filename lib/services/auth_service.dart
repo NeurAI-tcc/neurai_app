@@ -33,25 +33,86 @@ class AuthService {
   }
 
   Future<void> cadastrarCompleto(Map<String, dynamic> cadastro) async {
+    final dadosCadastro = Map<String, dynamic>.from(cadastro);
+    final dadosCamera = dadosCadastro.remove('camera');
+    final camera = dadosCamera is Map
+        ? Map<String, dynamic>.from(dadosCamera)
+        : null;
+    if (dadosCamera != null && camera == null) {
+      throw const FormatException('Os dados da câmera são inválidos.');
+    }
+    if (camera != null) {
+      final enderecoIp = camera['endereco_ip'];
+      if (enderecoIp is! String || enderecoIp.trim().isEmpty) {
+        throw const FormatException('O endereço IP da câmera é obrigatório.');
+      }
+      camera['endereco_ip'] = enderecoIp.trim();
+      dadosCadastro['ip_camera'] = enderecoIp.trim();
+    }
+
     final response = await client.post(
       Uri.parse('$baseUrl/auth/cadastro/'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(cadastro),
+      body: jsonEncode(dadosCadastro),
     );
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception(
         'Falha ao cadastrar (${response.statusCode}): ${response.body}',
       );
     }
-    if (response.body.isEmpty) return;
-
-    final decoded = jsonDecode(response.body);
-    if (decoded is Map) {
-      final result = Map<String, dynamic>.from(decoded);
-      final token = result['access'] ?? result['token'];
-      if (token is String && token.isNotEmpty) {
-        await storage.write(key: tokenKey, value: token);
+    Map<String, dynamic> resultadoCadastro = {};
+    if (response.body.isNotEmpty) {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map) {
+        resultadoCadastro = Map<String, dynamic>.from(decoded);
       }
+    }
+    final tokenCadastro = _tokenFrom(resultadoCadastro);
+    if (tokenCadastro != null) {
+      await storage.write(key: tokenKey, value: tokenCadastro);
+    }
+    if (camera == null) return;
+
+    final credenciais = <String, dynamic>{
+      'email': dadosCadastro['email'],
+      'senha': dadosCadastro['senha'],
+    };
+    final token =
+        tokenCadastro ??
+        await _saveToken(await _post('/auth/login/', credenciais));
+
+    final responseCamera = await client.post(
+      Uri.parse('$baseUrl/camera/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'endereco_ip': camera['endereco_ip'],
+        'nome_camara': camera['nome_camara'] ?? camera['nome'],
+        'localizacao': camera['localizacao'],
+        'modelo': camera['modelo'],
+      }),
+    );
+    if (responseCamera.statusCode < 200 || responseCamera.statusCode >= 300) {
+      throw Exception(
+        'Falha ao salvar a câmera (${responseCamera.statusCode}): '
+        '${responseCamera.body}',
+      );
+    }
+    if (responseCamera.body.isEmpty) {
+      throw const FormatException(
+        'A API não confirmou o salvamento da câmera.',
+      );
+    }
+    final respostaCamera = jsonDecode(responseCamera.body);
+    if (respostaCamera is! Map ||
+        respostaCamera['camera'] is! Map ||
+        (respostaCamera['camera'] as Map)['endereco_ip'] !=
+            camera['endereco_ip']) {
+      throw const FormatException(
+        'A API não confirmou o endereço IP salvo para a câmera.',
+      );
     }
   }
 
@@ -82,15 +143,20 @@ class AuthService {
     return Map<String, dynamic>.from(decoded);
   }
 
-  Future<void> _saveToken(Map<String, dynamic> result) async {
-    final value = result['access'] ?? result['token'];
-    if (value is String && value.isNotEmpty) {
-      await storage.write(key: tokenKey, value: value);
-      return;
+  Future<String> _saveToken(Map<String, dynamic> result) async {
+    final token = _tokenFrom(result);
+    if (token != null) {
+      await storage.write(key: tokenKey, value: token);
+      return token;
     }
     throw const FormatException(
       'A API não retornou um token de autenticação.',
     );
+  }
+
+  String? _tokenFrom(Map<String, dynamic> result) {
+    final value = result['access'] ?? result['token'];
+    return value is String && value.isNotEmpty ? value : null;
   }
 
   Map<String, dynamic> _userJson(Map<String, dynamic> result) =>

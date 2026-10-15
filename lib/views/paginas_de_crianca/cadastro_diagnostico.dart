@@ -20,9 +20,7 @@ class CadastroDiagnosticoPage extends StatefulWidget {
       _CadastroDiagnosticoPageState();
 }
 
-class _CadastroDiagnosticoPageState
-    extends State<CadastroDiagnosticoPage> {
-
+class _CadastroDiagnosticoPageState extends State<CadastroDiagnosticoPage> {
   // =========================
   // VARIÁVEIS
   // =========================
@@ -73,24 +71,18 @@ class _CadastroDiagnosticoPageState
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               const Padding(
                 padding: EdgeInsets.all(20),
                 child: Text(
                   'Selecione o diagnóstico',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
 
@@ -146,24 +138,18 @@ class _CadastroDiagnosticoPageState
       context: context,
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-
               const Padding(
                 padding: EdgeInsets.all(20),
                 child: Text(
                   'Selecione o nível de suporte',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
 
@@ -216,11 +202,10 @@ class _CadastroDiagnosticoPageState
 
   Future<void> selecionarArquivo() async {
     try {
-      final FilePickerResult? resultado =
-        await FilePicker.platform.pickFiles(
-      type: FileType.any,
-      withData: true,
-    );
+      final FilePickerResult? resultado = await FilePicker.platform.pickFiles(
+        type: FileType.any,
+        withData: true,
+      );
 
       if (resultado != null) {
         final bytes = resultado.files.single.bytes;
@@ -231,6 +216,7 @@ class _CadastroDiagnosticoPageState
         }
         setState(() {
           nomeArquivo = resultado.files.single.name;
+          widget.cadastro.setValue('laudo_nome', nomeArquivo);
           widget.cadastro.laudoBytes = bytes;
         });
       }
@@ -240,11 +226,7 @@ class _CadastroDiagnosticoPageState
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            'Não foi possível selecionar o arquivo.',
-          ),
-        ),
+        const SnackBar(content: Text('Não foi possível selecionar o arquivo.')),
       );
     }
   }
@@ -260,30 +242,22 @@ class _CadastroDiagnosticoPageState
 
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               // =========================
               // TOPO
               // =========================
-
               Row(
                 children: [
-
                   GestureDetector(
                     onTap: () {
                       Navigator.pop(context);
                     },
 
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 22,
-                    ),
+                    child: const Icon(Icons.arrow_back, size: 22),
                   ),
 
                   const Spacer(),
@@ -302,13 +276,9 @@ class _CadastroDiagnosticoPageState
               // =========================
               // TÍTULO
               // =========================
-
               const Text(
                 'Cadastro da criança',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 3),
@@ -316,10 +286,7 @@ class _CadastroDiagnosticoPageState
               const Text(
                 'Vamos conhecer melhor para cuidar\n'
                 'com mais precisão',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.secondaryText,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.secondaryText),
               ),
 
               const SizedBox(height: 10),
@@ -327,23 +294,16 @@ class _CadastroDiagnosticoPageState
               // =========================
               // ETAPAS
               // =========================
-
-              const ChildStepIndicator(
-                currentStep: 2,
-              ),
+              const ChildStepIndicator(currentStep: 2),
 
               const SizedBox(height: 18),
 
               // =========================
               // TÍTULO DA ETAPA
               // =========================
-
               const Text(
                 'Sobre o diagnóstico',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 4),
@@ -351,10 +311,7 @@ class _CadastroDiagnosticoPageState
               const Text(
                 'Essas informações nos ajudam a personalizar\n'
                 'o monitoramento e os alertas.',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: AppColors.secondaryText,
-                ),
+                style: TextStyle(fontSize: 14, color: AppColors.secondaryText),
               ),
 
               const SizedBox(height: 18),
@@ -362,7 +319,6 @@ class _CadastroDiagnosticoPageState
               // =========================
               // DIAGNÓSTICO
               // =========================
-
               const Text(
                 'Diagnóstico principal',
                 style: TextStyle(
@@ -385,7 +341,6 @@ class _CadastroDiagnosticoPageState
               // =========================
               // NÍVEL DE SUPORTE
               // =========================
-
               const Text(
                 'Nível de suporte (opcional)',
                 style: TextStyle(
@@ -408,7 +363,6 @@ class _CadastroDiagnosticoPageState
               // =========================
               // DATA DO DIAGNÓSTICO
               // =========================
-
               const Text(
                 'Quando recebeu o diagnóstico?',
                 style: TextStyle(
@@ -431,7 +385,6 @@ class _CadastroDiagnosticoPageState
               // =========================
               // LAUDOS
               // =========================
-
               const Text(
                 'Possui laudos ou relatórios?',
                 style: TextStyle(
@@ -454,17 +407,15 @@ class _CadastroDiagnosticoPageState
               // =========================
               // CONTINUAR
               // =========================
-
               ContinueButton(
                 onPressed: () {
                   Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CadastroSaudePage(
-                            cadastro: widget.cadastro,
-                          ),
-                        ),
-                      );
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          CadastroSaudePage(cadastro: widget.cadastro),
+                    ),
+                  );
                 },
               ),
 

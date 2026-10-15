@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:neurai_app/services/alert_service.dart';
@@ -23,6 +24,8 @@ class TestClient extends http.BaseClient {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('ApiService envia token e decodifica resposta', () async {
     late http.BaseRequest request;
     final client = TestClient((current) async {
@@ -126,4 +129,75 @@ void main() {
     expect(sentRequest.headers['content-type'], 'application/json');
     expect(jsonDecode((sentRequest as http.Request).body), payload);
   });
+
+  test(
+    'AuthService salva o IP na conta e cria a câmera pela API autenticada',
+    () async {
+      final requests = <http.Request>[];
+      String? tokenSalvo;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(
+            const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+            (call) async {
+              if (call.method == 'write') {
+                tokenSalvo = (call.arguments as Map)['value'] as String;
+              }
+              return null;
+            },
+          );
+      final client = TestClient((request) async {
+        final current = request as http.Request;
+        requests.add(current);
+        switch (current.url.path) {
+          case '/auth/cadastro/':
+            return http.Response(jsonEncode({'id': 'usuario-1'}), 201);
+          case '/auth/login/':
+            return http.Response(jsonEncode({'token': 'token-teste'}), 200);
+          case '/camera/':
+            return http.Response(
+              jsonEncode({
+                'camera': {'endereco_ip': '192.168.1.10'},
+              }),
+              201,
+            );
+          default:
+            return http.Response('Rota inesperada', 404);
+        }
+      });
+      final service = AuthService(baseUrl: 'https://api.test', client: client);
+
+      await service.cadastrarCompleto({
+        'nome_completo': 'Responsável',
+        'email': 'responsavel@example.com',
+        'senha': 'senha-segura',
+        'camera': {
+          'endereco_ip': '192.168.1.10',
+          'nome': 'Quarto',
+          'localizacao': 'Quarto da criança',
+          'modelo': 'Intelbras iM3',
+        },
+        'perfil_crianca': {'nome_completo': 'Criança'},
+      });
+
+      expect(requests.map((request) => request.url.path), [
+        '/auth/cadastro/',
+        '/auth/login/',
+        '/camera/',
+      ]);
+      final payloadCadastro =
+          jsonDecode(requests[0].body) as Map<String, dynamic>;
+      expect(payloadCadastro['ip_camera'], '192.168.1.10');
+      expect(payloadCadastro.containsKey('camera'), isFalse);
+      final payloadCamera =
+          jsonDecode(requests[2].body) as Map<String, dynamic>;
+      expect(payloadCamera, {
+        'endereco_ip': '192.168.1.10',
+        'nome_camara': 'Quarto',
+        'localizacao': 'Quarto da criança',
+        'modelo': 'Intelbras iM3',
+      });
+      expect(requests[2].headers['authorization'], 'Bearer token-teste');
+      expect(tokenSalvo, 'token-teste');
+    },
+  );
 }
