@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 import 'home.dart';
@@ -8,16 +7,14 @@ import 'contents/perfil_sobre.dart';
 import 'contents/perfil_clinico.dart';
 import 'contents/perfil_seguranca.dart';
 import 'contents/perfil_botao_sair.dart';
+import 'login_page.dart';
+import '../services/auth_service.dart';
 
 class PerfilPage extends StatelessWidget {
   final String cameraId;
   final String token;
 
-  const PerfilPage({
-    super.key,
-    required this.cameraId,
-    required this.token,
-  });
+  const PerfilPage({super.key, required this.cameraId, required this.token});
 
   static const Color fundo = Color(0xFFE8F6FF);
 
@@ -47,14 +44,28 @@ class PerfilPage extends StatelessWidget {
                     const PerfilSeguranca(),
                     const SizedBox(height: 20),
                     PerfilBotaoSair(
-                      onConfirmarSaida: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'conecte esta ação ao serviço de logout.',
+                      onConfirmarSaida: () async {
+                        try {
+                          await AuthService().logout();
+
+                          if (!context.mounted) return;
+
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LoginPage(),
                             ),
-                          ),
-                        );
+                            (route) => false,
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Não foi possível sair da conta.'),
+                            ),
+                          );
+                        }
                       },
                     ),
                   ],
@@ -71,10 +82,7 @@ class PerfilPage extends StatelessWidget {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (_) => HomePage(
-                  cameraId: cameraId,
-                  token: token,
-                ),
+                builder: (_) => HomePage(cameraId: cameraId, token: token),
               ),
             );
           } else if (index != 4) {

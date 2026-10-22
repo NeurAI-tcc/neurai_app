@@ -18,7 +18,7 @@ class AuthService {
            baseUrl ??
            const String.fromEnvironment(
              'NEURAI_API_URL',
-             defaultValue: 'http://192.168.0.65:8000/api',
+             defaultValue: 'http://127.0.0.1:8000/api',
            ),
        client = client ?? http.Client(),
        storage = storage ?? const FlutterSecureStorage();
@@ -149,9 +149,7 @@ class AuthService {
       await storage.write(key: tokenKey, value: token);
       return token;
     }
-    throw const FormatException(
-      'A API não retornou um token de autenticação.',
-    );
+    throw const FormatException('A API não retornou um token de autenticação.');
   }
 
   String? _tokenFrom(Map<String, dynamic> result) {
