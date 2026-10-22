@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:neurai_app/views/agenda_page.dart';
 import 'package:neurai_app/views/contents/group_alertas.dart';
 
 import 'contents/home_bottom_nav.dart';
@@ -228,11 +229,15 @@ class _HistoricoPageState extends State<HistoricoPage> {
               break;
 
             case 1:
-              // Já está no Histórico.
               break;
 
             case 2:
-              // Adicionar navegação para Agenda.
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AgendaPage(),
+                ),
+              );
               break;
 
             case 3:
