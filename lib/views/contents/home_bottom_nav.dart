@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 class HomeBottomNav extends StatelessWidget {
@@ -37,12 +38,15 @@ class HomeBottomNav extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(
           top: Radius.circular(15),
         ),
-        border: Border.all(color: azul, width: 1),
+        border: Border.all(
+          color: azul,
+          width: 1,
+        ),
       ),
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 68,
+          height: 62,
           child: Row(
             children: List.generate(
               titulos.length,
@@ -53,18 +57,19 @@ class HomeBottomNav extends StatelessWidget {
                 return Expanded(
                   child: InkWell(
                     onTap: () => onTap(index),
+                    borderRadius: BorderRadius.circular(12),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 7),
+                      padding: const EdgeInsets.symmetric(vertical: 5),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             icones[index],
-                            size: 30,
+                            size: 25,
                             color: cor,
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: 3),
                           Text(
                             titulos[index],
                             textAlign: TextAlign.center,

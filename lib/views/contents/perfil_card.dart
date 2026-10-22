@@ -8,7 +8,7 @@ class PerfilCard extends StatelessWidget {
   const PerfilCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(10),
+    this.padding = const EdgeInsets.all(12),
   });
 
   static const Color azul = Color(0xFF5298FF);
@@ -20,12 +20,15 @@ class PerfilCard extends StatelessWidget {
       padding: padding,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(13),
-        border: Border.all(color: azul, width: 0.9),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: azul,
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 5,
+            color: const Color(0xFF5298FF).withValues(alpha: 0.13),
+            blurRadius: 7,
             offset: const Offset(0, 3),
           ),
         ],

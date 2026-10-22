@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:neurai_app/views/historico_page.dart';
 import 'package:neurai_app/views/perfil_page.dart';
 
 import 'contents/camera_monitoramento.dart';
 import 'contents/home_bottom_nav.dart';
 import 'contents/resumo_card.dart';
 import 'contents/status_card.dart';
-import 'perfil_page.dart';
 
 class HomePage extends StatelessWidget {
   final String cameraId;
@@ -163,7 +163,12 @@ class HomePage extends StatelessWidget {
             case 0:
               break;
             case 1:
-              // Abrir Histórico
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const HistoricoPage(),
+                ),
+              );
               break;
             case 2:
               // Abrir Agenda
@@ -175,7 +180,7 @@ class HomePage extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PerfilPage(),
+                builder: (context) => const PerfilPage(cameraId: '', token: '',),
               ),
             );
               break;
