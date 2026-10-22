@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:neurai_app/views/agenda_page.dart';
 import 'package:neurai_app/views/historico_page.dart';
 import 'package:neurai_app/views/perfil_page.dart';
+import 'package:neurai_app/views/relatorios_page.dart';
 
 import 'contents/camera_monitoramento.dart';
 import 'contents/home_bottom_nav.dart';
@@ -180,7 +181,12 @@ class HomePage extends StatelessWidget {
               );
               break;
             case 3:
-              // Abrir Relatórios
+              Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RelatoriosScreen(),
+              ),
+            );
               break;
             case 4:
             Navigator.push(

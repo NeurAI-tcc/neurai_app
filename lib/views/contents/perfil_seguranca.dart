@@ -29,7 +29,7 @@ class PerfilSeguranca extends StatelessWidget {
             Text(
               titulo,
               style: const TextStyle(
-                fontSize: 10,
+                fontSize: 14,
                 color: Color(0xFF858B94),
               ),
             ),
@@ -39,7 +39,7 @@ class PerfilSeguranca extends StatelessWidget {
                 valor,
                 textAlign: TextAlign.right,
                 style: const TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   color: Color(0xFF30343B),
                 ),
               ),

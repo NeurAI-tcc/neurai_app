@@ -25,7 +25,7 @@ class PerfilSobre extends StatelessWidget {
                 Text(
                   titulo,
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     color: cinza,
                   ),
                 ),
@@ -33,7 +33,7 @@ class PerfilSobre extends StatelessWidget {
                 Text(
                   valor,
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 14,
                     color: texto,
                     fontWeight: FontWeight.w500,
                   ),
@@ -69,7 +69,7 @@ class PerfilSobre extends StatelessWidget {
               Text(
                 'Sobre',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 14,
                   color: texto,
                   fontWeight: FontWeight.w600,
                 ),

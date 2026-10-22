@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:neurai_app/views/home.dart';
+import 'package:neurai_app/views/relatorios_page.dart';
 
 import 'contents/home_bottom_nav.dart';
 import 'contents/calendario_semanal.dart';
@@ -329,33 +331,39 @@ class _AgendaPageState extends State<AgendaPage> {
         onTap: (index) {
           switch (index) {
             case 0:
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const HomePage(cameraId: '', token: '',),
+                ),
+              );
               break;
-
             case 1:
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const HistoricoPage(),
+                  builder: (context) => const HistoricoPage(),
                 ),
               );
               break;
-
             case 2:
-              // Já está na Agenda.
+              
               break;
-
             case 3:
-              // Adicionar navegação para Relatórios.
-              break;
-
-            case 4:
               Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const PerfilPage(cameraId: '', token: '',),
-                ),
-              );
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RelatoriosScreen(),
+              ),
+            );
+              break;
+            case 4:
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PerfilPage(cameraId: '', token: '',),
+              ),
+            );
               break;
           }
         },
