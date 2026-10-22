@@ -158,18 +158,6 @@ class _CadastroPageState extends State<CadastroPage> {
               ),
             ),
           ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: IgnorePointer(
-              child: Image.asset(
-                'assets/ondas_fundo.png',
-                width: double.infinity,
-                fit: BoxFit.fitWidth,
-              ),
-            ),
-          ),
         ],
       ),
     );
