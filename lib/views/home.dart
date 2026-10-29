@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:neurai_app/services/auth_service.dart';
+import 'package:neurai_app/views/agenda_page.dart';
 import 'package:neurai_app/views/historico_page.dart';
 import 'package:neurai_app/views/perfil_page.dart';
+import 'package:neurai_app/views/relatorios_page.dart';
 
 import 'contents/camera_monitoramento.dart';
 import 'contents/home_bottom_nav.dart';
@@ -311,10 +313,20 @@ class _HomePageState extends State<HomePage> {
               );
               break;
             case 2:
-              // Abrir Agenda
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AgendaPage(),
+                ),
+              );
               break;
             case 3:
-              // Abrir Relatórios
+              Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RelatoriosScreen(),
+              ),
+            );
               break;
             case 4:
               Navigator.push(

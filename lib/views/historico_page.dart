@@ -1,6 +1,9 @@
 
 import 'package:flutter/material.dart';
+import 'package:neurai_app/views/agenda_page.dart';
 import 'package:neurai_app/views/contents/group_alertas.dart';
+import 'package:neurai_app/views/home.dart';
+import 'package:neurai_app/views/relatorios_page.dart';
 
 import 'contents/home_bottom_nav.dart';
 import 'contents/filtro_alertas.dart';
@@ -224,28 +227,39 @@ class _HistoricoPageState extends State<HistoricoPage> {
         onTap: (index) {
           switch (index) {
             case 0:
-              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const HomePage(cameraId: '', token: '',),
+                ),
+              );
               break;
-
             case 1:
-              // Já está no Histórico.
+              
               break;
-
             case 2:
-              // Adicionar navegação para Agenda.
-              break;
-
-            case 3:
-              // Adicionar navegação para Relatórios.
-              break;
-
-            case 4:
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const PerfilPage(cameraId: '', token: '',),
+                  builder: (context) => const AgendaPage(),
                 ),
               );
+              break;
+            case 3:
+              Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const RelatoriosScreen(),
+              ),
+            );
+              break;
+            case 4:
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const PerfilPage(cameraId: '', token: '',),
+              ),
+            );
               break;
           }
         },

@@ -35,7 +35,7 @@ class PerfilClinico extends StatelessWidget {
                 Text(
                   titulo,
                   style: const TextStyle(
-                    fontSize: 10,
+                    fontSize: 14,
                     color: cinza,
                   ),
                 ),
