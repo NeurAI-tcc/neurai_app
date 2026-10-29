@@ -25,11 +25,9 @@ class PerfilPage extends StatelessWidget {
   static const Color azul = Color(0xFF5298FF);
 
   void _abrirConfiguracoes(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const ConfiguracoesPage(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const ConfiguracoesPage()));
   }
 
   @override
@@ -87,11 +85,6 @@ class PerfilPage extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                               builder: (_) => const LoginPage(),
-                      onConfirmarSaida: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Conecte esta ação ao serviço de logout.',
                             ),
                             (route) => false,
                           );
@@ -120,54 +113,37 @@ class PerfilPage extends StatelessWidget {
       bottomNavigationBar: HomeBottomNav(
         paginaSelecionada: 4,
         onTap: (index) {
-          if (index == 0) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => HomePage(cameraId: cameraId, token: token),
-              ),
-            );
-          } else if (index != 4) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '${HomeBottomNav.titulos[index]} ainda precisa '
-                  'ser conectada.',
           switch (index) {
             case 0:
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const HomePage(cameraId: '', token: '',),
+                  builder: (_) => HomePage(cameraId: cameraId, token: token),
                 ),
               );
               break;
             case 1:
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const HistoricoPage(),
-                ),
+                MaterialPageRoute(builder: (context) => const HistoricoPage()),
               );
               break;
             case 2:
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const AgendaPage(),
-                ),
+                MaterialPageRoute(builder: (context) => const AgendaPage()),
               );
               break;
             case 3:
               Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const RelatoriosScreen(),
-              ),
-            );
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const RelatoriosScreen(),
+                ),
+              );
               break;
             case 4:
-            
+              // Já está na página de perfil
               break;
           }
         },
@@ -188,10 +164,7 @@ class PerfilPage extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(
-              color: azul.withValues(alpha: 0.3),
-              width: 1,
-            ),
+            border: Border.all(color: azul.withValues(alpha: 0.3), width: 1),
           ),
           child: Row(
             children: [
@@ -226,20 +199,13 @@ class PerfilPage extends StatelessWidget {
                     SizedBox(height: 5),
                     Text(
                       'Personalize sua experiência no NeurAI',
-                      style: TextStyle(
-                        color: Colors.black54,
-                        fontSize: 12,
-                      ),
+                      style: TextStyle(color: Colors.black54, fontSize: 12),
                     ),
                   ],
                 ),
               ),
 
-              const Icon(
-                Icons.chevron_right_rounded,
-                color: azul,
-                size: 28,
-              ),
+              const Icon(Icons.chevron_right_rounded, color: azul, size: 28),
             ],
           ),
         ),

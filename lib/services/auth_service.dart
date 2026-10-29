@@ -150,8 +150,6 @@ class AuthService {
       return token;
     }
     throw const FormatException('A API não retornou um token de autenticação.');
-<<<<<<< HEAD
-=======
   }
 
   Future<Map<String, dynamic>> getDadosApi(String caminho) async {
@@ -172,7 +170,7 @@ class AuthService {
     if (response.statusCode != 200) {
       throw Exception(
         'Erro ao consultar $caminho: '
-        '${response.statusCode} - ${response.body}',
+        '${response.statusCode}\n${response.body}',
       );
     }
 
@@ -207,7 +205,7 @@ class AuthService {
     if (response.statusCode != 200) {
       throw Exception(
         'Erro ao buscar alertas: '
-        '${response.statusCode} - ${response.body}',
+        '${response.statusCode}\n${response.body}',
       );
     }
 
@@ -226,7 +224,6 @@ class AuthService {
 
   Future<Map<String, dynamic>> getCamera() async {
     return getDadosApi('/camera/');
->>>>>>> 133d3d585491529d23f44476eaca6c2697f6d627
   }
 
   String? _tokenFrom(Map<String, dynamic> result) {
