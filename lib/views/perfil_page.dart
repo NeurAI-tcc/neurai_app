@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:neurai_app/views/agenda_page.dart';
 import 'package:neurai_app/views/historico_page.dart';
@@ -13,16 +12,14 @@ import 'contents/perfil_sobre.dart';
 import 'contents/perfil_clinico.dart';
 import 'contents/perfil_seguranca.dart';
 import 'contents/perfil_botao_sair.dart';
+import 'login_page.dart';
+import '../services/auth_service.dart';
 
 class PerfilPage extends StatelessWidget {
   final String cameraId;
   final String token;
 
-  const PerfilPage({
-    super.key,
-    required this.cameraId,
-    required this.token,
-  });
+  const PerfilPage({super.key, required this.cameraId, required this.token});
 
   static const Color fundo = Color(0xFFE8F6FF);
   static const Color azul = Color(0xFF5298FF);
@@ -80,14 +77,33 @@ class PerfilPage extends StatelessWidget {
 
                     // SAIR DA CONTA
                     PerfilBotaoSair(
+                      onConfirmarSaida: () async {
+                        try {
+                          await AuthService().logout();
+
+                          if (!context.mounted) return;
+
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LoginPage(),
                       onConfirmarSaida: () {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                             content: Text(
                               'Conecte esta ação ao serviço de logout.',
                             ),
-                          ),
-                        );
+                            (route) => false,
+                          );
+                        } catch (e) {
+                          if (!context.mounted) return;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Não foi possível sair da conta.'),
+                            ),
+                          );
+                        }
                       },
                     ),
 
@@ -104,6 +120,19 @@ class PerfilPage extends StatelessWidget {
       bottomNavigationBar: HomeBottomNav(
         paginaSelecionada: 4,
         onTap: (index) {
+          if (index == 0) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => HomePage(cameraId: cameraId, token: token),
+              ),
+            );
+          } else if (index != 4) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  '${HomeBottomNav.titulos[index]} ainda precisa '
+                  'ser conectada.',
           switch (index) {
             case 0:
               Navigator.pushReplacement(

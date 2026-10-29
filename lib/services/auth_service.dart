@@ -18,7 +18,7 @@ class AuthService {
            baseUrl ??
            const String.fromEnvironment(
              'NEURAI_API_URL',
-             defaultValue: 'http://192.168.0.65:8000/api',
+             defaultValue: 'http://127.0.0.1:8000/api',
            ),
        client = client ?? http.Client(),
        storage = storage ?? const FlutterSecureStorage();
@@ -149,9 +149,84 @@ class AuthService {
       await storage.write(key: tokenKey, value: token);
       return token;
     }
-    throw const FormatException(
-      'A API não retornou um token de autenticação.',
+    throw const FormatException('A API não retornou um token de autenticação.');
+<<<<<<< HEAD
+=======
+  }
+
+  Future<Map<String, dynamic>> getDadosApi(String caminho) async {
+    final chave = await token;
+
+    if (chave == null || chave.isEmpty) {
+      throw Exception('Token não encontrado. Faça login novamente.');
+    }
+
+    final response = await client.get(
+      Uri.parse('$baseUrl$caminho'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $chave',
+      },
     );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Erro ao consultar $caminho: '
+        '${response.statusCode} - ${response.body}',
+      );
+    }
+
+    final dados = jsonDecode(response.body);
+
+    if (dados is Map) {
+      return Map<String, dynamic>.from(dados);
+    }
+
+    throw const FormatException('Resposta inválida da API.');
+  }
+
+  Future<Map<String, dynamic>> getPerfil() async {
+    return getDadosApi('/perfil/');
+  }
+
+  Future<List<dynamic>> getAlertas() async {
+    final chave = await token;
+
+    if (chave == null || chave.isEmpty) {
+      throw Exception('Token não encontrado. Faça login novamente.');
+    }
+
+    final response = await client.get(
+      Uri.parse('$baseUrl/alertas/'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $chave',
+      },
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Erro ao buscar alertas: '
+        '${response.statusCode} - ${response.body}',
+      );
+    }
+
+    final dados = jsonDecode(response.body);
+
+    if (dados is List) {
+      return dados;
+    }
+
+    if (dados is Map && dados['resultados'] is List) {
+      return dados['resultados'] as List<dynamic>;
+    }
+
+    return [];
+  }
+
+  Future<Map<String, dynamic>> getCamera() async {
+    return getDadosApi('/camera/');
+>>>>>>> 133d3d585491529d23f44476eaca6c2697f6d627
   }
 
   String? _tokenFrom(Map<String, dynamic> result) {
