@@ -3,7 +3,16 @@ import 'package:flutter/material.dart';
 import 'perfil_card.dart';
 
 class PerfilSobre extends StatelessWidget {
-  const PerfilSobre({super.key});
+  final String dataNascimento;
+  final String responsavel;
+  final String email;
+
+  const PerfilSobre({
+    super.key,
+    required this.dataNascimento,
+    required this.responsavel,
+    required this.email,
+  });
 
   static const Color azul = Color(0xFF5298FF);
   static const Color texto = Color(0xFF30343B);
@@ -79,12 +88,12 @@ class PerfilSobre extends StatelessWidget {
           const SizedBox(height: 5),
           _campo(
             titulo: 'Data de nascimento',
-            valor: '12/04/2017',
+            valor: dataNascimento,
           ),
           const Divider(height: 1, thickness: 0.7),
           _campo(
             titulo: 'Responsável principal',
-            valor: 'Ariana (Mãe)',
+            valor: responsavel,
             trailing: Container(
               width: 34,
               height: 34,
@@ -112,7 +121,7 @@ class PerfilSobre extends StatelessWidget {
           const Divider(height: 1, thickness: 0.7),
           _campo(
             titulo: 'E-mail',
-            valor: 'ariana@gmail.com',
+            valor: email,
           ),
         ],
       ),

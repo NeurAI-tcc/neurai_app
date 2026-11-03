@@ -14,7 +14,7 @@ class ProfileService {
           baseUrl ??
           const String.fromEnvironment(
             'NEURAI_API_URL',
-            defaultValue: 'http://172.31.173.46:8000/api',
+            defaultValue: 'http://10.32.161.46:8000/api',
           ),
       client = client ?? http.Client();
 

@@ -14,15 +14,50 @@ import 'contents/perfil_seguranca.dart';
 import 'contents/perfil_botao_sair.dart';
 import 'login_page.dart';
 import '../services/auth_service.dart';
+import '../services/api_service.dart';
+import '../models/usuario_model.dart';
 
-class PerfilPage extends StatelessWidget {
+class PerfilPage extends StatefulWidget {
   final String cameraId;
   final String token;
 
   const PerfilPage({super.key, required this.cameraId, required this.token});
 
+  @override
+  State<PerfilPage> createState() => _PerfilPageState();
+}
+
+class _PerfilPageState extends State<PerfilPage> {
+  final ApiService _api = ApiService();
+  UsuarioModel? _usuario;
+  String? _erro;
+  bool _carregando = true;
+
   static const Color fundo = Color(0xFFE8F6FF);
   static const Color azul = Color(0xFF5298FF);
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarPerfil();
+  }
+
+  Future<void> _carregarPerfil() async {
+    try {
+      final token = widget.token.isNotEmpty
+          ? widget.token
+          : await AuthService().token ?? '';
+      if (token.isEmpty) {
+        throw Exception('Token não encontrado. Faça login novamente.');
+      }
+      final usuario = await _api.buscarPerfil(token: token);
+      if (mounted) setState(() => _usuario = usuario);
+    } catch (error) {
+      if (mounted) setState(() => _erro = error.toString());
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
 
   void _abrirConfiguracoes(BuildContext context) {
     Navigator.of(
@@ -49,7 +84,16 @@ class PerfilPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // CABEÇALHO DO PERFIL
-                    const PerfilHeader(),
+                    _carregando
+                        ? const SizedBox(
+                            height: 170,
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        : PerfilHeader(
+                            nome: _nomeCrianca,
+                            resumo: _resumoCrianca,
+                            monitoramentoAtivo: widget.cameraId.isNotEmpty,
+                          ),
 
                     const SizedBox(height: 16),
 
@@ -59,12 +103,30 @@ class PerfilPage extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // INFORMAÇÕES SOBRE O USUÁRIO
-                    const PerfilSobre(),
+                    PerfilSobre(
+                      dataNascimento: _dataNascimento,
+                      responsavel: _nomeResponsavel,
+                      email: _usuario?.email ?? 'Não informado',
+                    ),
 
                     const SizedBox(height: 12),
 
                     // INFORMAÇÕES CLÍNICAS
-                    const PerfilClinico(),
+                    PerfilClinico(
+                      diagnostico: _diagnostico,
+                      sensibilidades: _sensibilidades,
+                      preferencias: _preferencias,
+                    ),
+
+                    if (_erro != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Text(
+                          _erro!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
 
                     const SizedBox(height: 20),
 
@@ -118,7 +180,8 @@ class PerfilPage extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => HomePage(cameraId: cameraId, token: token),
+                  builder: (_) =>
+                      HomePage(cameraId: widget.cameraId, token: widget.token),
                 ),
               );
               break;
@@ -127,7 +190,10 @@ class PerfilPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      HistoricoPage(token: token, cameraId: cameraId),
+                      HistoricoPage(
+                        token: widget.token,
+                        cameraId: widget.cameraId,
+                      ),
                 ),
               );
               break;
@@ -136,7 +202,10 @@ class PerfilPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) =>
-                      AgendaPage(token: token, cameraId: cameraId),
+                      AgendaPage(
+                        token: widget.token,
+                        cameraId: widget.cameraId,
+                      ),
                 ),
               );
               break;
@@ -145,8 +214,8 @@ class PerfilPage extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => RelatoriosScreen(
-                    token: token,
-                    cameraId: cameraId,
+                    token: widget.token,
+                    cameraId: widget.cameraId,
                   ),
                 ),
               );
@@ -220,5 +289,56 @@ class PerfilPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  CriancaModel? get _crianca => _usuario?.perfilCrianca;
+
+  String get _nomeCrianca =>
+      _crianca?.nomeCompleto.isNotEmpty == true
+      ? _crianca!.nomeCompleto
+      : 'Perfil da criança';
+
+  String get _nomeResponsavel =>
+      _usuario?.nomeCompleto.isNotEmpty == true
+      ? _usuario!.nomeCompleto
+      : 'Não informado';
+
+  String get _resumoCrianca {
+    final diagnostico = _crianca?.diagnosticoPrincipal;
+    final idade = _crianca?.infoBasica.dataNascimento;
+    final idadeTexto = idade == null ? '' : '${_calcularIdade(idade)} anos';
+    return [idadeTexto, diagnostico ?? ''].where((item) => item.isNotEmpty).join(' - ');
+  }
+
+  String get _dataNascimento {
+    final data = _crianca?.infoBasica.dataNascimento;
+    if (data == null) return 'Não informado';
+    return '${data.day.toString().padLeft(2, '0')}/'
+        '${data.month.toString().padLeft(2, '0')}/${data.year}';
+  }
+
+  String get _diagnostico =>
+      _crianca?.diagnosticoPrincipal.isNotEmpty == true
+      ? _crianca!.diagnosticoPrincipal
+      : 'Não informado';
+
+  String get _sensibilidades {
+    final valores = _crianca?.preferencias.sensibilidades ?? const [];
+    return valores.isEmpty ? 'Não informado' : valores.join(', ');
+  }
+
+  String get _preferencias {
+    final valores = _crianca?.preferencias.atividadesFavoritas ?? const [];
+    return valores.isEmpty ? 'Não informado' : valores.join(', ');
+  }
+
+  int _calcularIdade(DateTime nascimento) {
+    final hoje = DateTime.now();
+    var idade = hoje.year - nascimento.year;
+    if (hoje.month < nascimento.month ||
+        (hoje.month == nascimento.month && hoje.day < nascimento.day)) {
+      idade--;
+    }
+    return idade;
   }
 }

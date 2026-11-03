@@ -14,7 +14,7 @@ class ApiService {
           baseUrl ??
           const String.fromEnvironment(
             'NEURAI_API_URL',
-            defaultValue: 'http://172.31.173.46/api',
+            defaultValue: 'http://10.32.161.46/api',
           ),
       client = client ?? http.Client();
 
@@ -36,6 +36,28 @@ class ApiService {
         ? Map<String, dynamic>.from(json['camera'] as Map)
         : json;
     return CameraModel.fromJson(data);
+  }
+
+  Future<UsuarioModel> buscarPerfil({required String token}) async {
+    final json = await getJson('/perfil/', token: token);
+    final data = json['usuario'] is Map
+        ? Map<String, dynamic>.from(json['usuario'] as Map)
+        : _perfilData(json);
+    return UsuarioModel.fromJson(data);
+  }
+
+  Map<String, dynamic> _perfilData(Map<String, dynamic> json) {
+    final perfil = json['perfil'];
+    if (perfil is! Map) return json;
+
+    final perfilMap = Map<String, dynamic>.from(perfil);
+    if (perfilMap.containsKey('email') ||
+        perfilMap.containsKey('nome_completo') ||
+        perfilMap.containsKey('perfil_crianca')) {
+      return perfilMap;
+    }
+
+    return {...json, 'perfil_crianca': perfilMap}..remove('perfil');
   }
 
   Future<Map<String, dynamic>> getJson(

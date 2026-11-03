@@ -1,8 +1,16 @@
-
 import 'package:flutter/material.dart';
 
 class PerfilHeader extends StatelessWidget {
-  const PerfilHeader({super.key});
+  final String nome;
+  final String resumo;
+  final bool monitoramentoAtivo;
+
+  const PerfilHeader({
+    super.key,
+    required this.nome,
+    required this.resumo,
+    required this.monitoramentoAtivo,
+  });
 
   static const Color azul = Color(0xFF5298FF);
   static const Color texto = Color(0xFF30343B);
@@ -20,17 +28,11 @@ class PerfilHeader extends StatelessWidget {
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text(
-                      'conecte aqui a edição do perfil.',
-                    ),
+                    content: Text('conecte aqui a edição do perfil.'),
                   ),
                 );
               },
-              icon: const Icon(
-                Icons.edit_outlined,
-                size: 22,
-                color: texto,
-              ),
+              icon: const Icon(Icons.edit_outlined, size: 22, color: texto),
             ),
           ),
           Positioned.fill(
@@ -46,10 +48,7 @@ class PerfilHeader extends StatelessWidget {
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: azul,
-                          width: 1.5,
-                        ),
+                        border: Border.all(color: azul, width: 1.5),
                       ),
                       child: const CircleAvatar(
                         backgroundColor: Color(0xFFD5E9F8),
@@ -69,10 +68,7 @@ class PerfilHeader extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: azul,
                           borderRadius: BorderRadius.circular(9),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
+                          border: Border.all(color: Colors.white, width: 2),
                         ),
                         child: const Icon(
                           Icons.camera_alt,
@@ -84,8 +80,8 @@ class PerfilHeader extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 6),
-                const Text(
-                  'Luiza Sonza',
+                Text(
+                  nome,
                   style: TextStyle(
                     fontSize: 19,
                     fontWeight: FontWeight.w700,
@@ -93,29 +89,24 @@ class PerfilHeader extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 2),
-                const Text(
-                  '6 anos - TEA - Nível 1',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: texto,
-                  ),
-                ),
+                Text(resumo, style: TextStyle(fontSize: 12, color: texto)),
                 const SizedBox(height: 3),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
                       Icons.circle,
                       size: 8,
-                      color: Color(0xFF36B96B),
+                      color: monitoramentoAtivo
+                          ? const Color(0xFF36B96B)
+                          : Colors.grey,
                     ),
                     SizedBox(width: 5),
                     Text(
-                      'Monitoramento ativo',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF4F5965),
-                      ),
+                      monitoramentoAtivo
+                          ? 'Monitoramento ativo'
+                          : 'Monitoramento indisponível',
+                      style: TextStyle(fontSize: 11, color: Color(0xFF4F5965)),
                     ),
                   ],
                 ),
