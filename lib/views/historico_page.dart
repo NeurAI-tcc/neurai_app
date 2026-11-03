@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import '../controllers/alertas_controller.dart';
+import '../models/alerta_model.dart';
 import 'package:neurai_app/views/agenda_page.dart';
 import 'package:neurai_app/views/contents/group_alertas.dart';
 import 'package:neurai_app/views/home.dart';
@@ -11,7 +13,9 @@ import 'contents/alerta_card.dart';
 import 'perfil_page.dart';
 
 class HistoricoPage extends StatefulWidget {
-  const HistoricoPage({super.key});
+  final String token;
+  final String cameraId;
+  const HistoricoPage({super.key, this.token = '', this.cameraId = ''});
 
   @override
   State<HistoricoPage> createState() => _HistoricoPageState();
@@ -20,10 +24,12 @@ class HistoricoPage extends StatefulWidget {
 class _HistoricoPageState extends State<HistoricoPage> {
   static const Color fundo = Color(0xFFE8F6FF);
   static const Color azul = Color(0xFF5298FF);
+  late final AlertasController controller;
 
   String filtroSelecionado = 'Todos';
 
-  final List<Map<String, dynamic>> alertas = [
+  final List<Map<String, dynamic>> alertas = [];
+  /*
     {
       'categoria': 'Rotina',
       'titulo': 'Mudança na rotina detectada',
@@ -96,7 +102,26 @@ class _HistoricoPageState extends State<HistoricoPage> {
       'data': '23 de maio de 2026',
       'grupo': 'Ontem - 23 de maio de 2026',
     },
-  ];
+  */
+
+  @override
+  void initState() {
+    super.initState();
+    controller = AlertasController();
+    controller.addListener(_atualizar);
+    if (widget.token.isNotEmpty) controller.carregar(widget.token);
+  }
+
+  void _atualizar() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(_atualizar);
+    controller.dispose();
+    super.dispose();
+  }
 
   List<Map<String, dynamic>> get alertasFiltrados {
     if (filtroSelecionado == 'Todos') {
@@ -112,7 +137,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
 
   @override
   Widget build(BuildContext context) {
-    final lista = alertasFiltrados;
+    final lista = controller.alertas.map(_mapearAlerta).toList();
 
     return Scaffold(
       backgroundColor: fundo,
@@ -161,9 +186,10 @@ class _HistoricoPageState extends State<HistoricoPage> {
             FiltroAlertas(
               selecionado: filtroSelecionado,
               onChanged: (filtro) {
-                setState(() {
-                  filtroSelecionado = filtro;
-                });
+                setState(() => filtroSelecionado = filtro);
+                if (widget.token.isNotEmpty) {
+                  controller.aplicarFiltro(widget.token, _filtroApi(filtro));
+                }
               },
             ),
 
@@ -230,7 +256,8 @@ class _HistoricoPageState extends State<HistoricoPage> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const HomePage(cameraId: '', token: '',),
+                  builder: (_) =>
+                      HomePage(cameraId: widget.cameraId, token: widget.token),
                 ),
               );
               break;
@@ -241,7 +268,10 @@ class _HistoricoPageState extends State<HistoricoPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AgendaPage(),
+                  builder: (context) => AgendaPage(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
               );
               break;
@@ -249,7 +279,10 @@ class _HistoricoPageState extends State<HistoricoPage> {
               Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const RelatoriosScreen(),
+                builder: (context) => RelatoriosScreen(
+                  token: widget.token,
+                  cameraId: widget.cameraId,
+                ),
               ),
             );
               break;
@@ -257,7 +290,10 @@ class _HistoricoPageState extends State<HistoricoPage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => const PerfilPage(cameraId: '', token: '',),
+                builder: (context) => PerfilPage(
+                  cameraId: widget.cameraId,
+                  token: widget.token,
+                ),
               ),
             );
               break;
@@ -265,5 +301,27 @@ class _HistoricoPageState extends State<HistoricoPage> {
         },
       ),
     );
+  }
+
+  TipoAlertaFiltro _filtroApi(String filtro) => switch (filtro) {
+    'Rotina' => TipoAlertaFiltro.rotina,
+    'Saúde' => TipoAlertaFiltro.saude,
+    'Medicamentos' => TipoAlertaFiltro.medicamentos,
+    _ => TipoAlertaFiltro.todos,
+  };
+
+  Map<String, dynamic> _mapearAlerta(AlertaModel alerta) {
+    final local = alerta.timestamp.toLocal();
+    final categoria = alerta.tipoCrise.isEmpty
+        ? 'Saúde'
+        : alerta.tipoCrise[0].toUpperCase() + alerta.tipoCrise.substring(1);
+    return {
+      'categoria': categoria,
+      'titulo': alerta.detalhes.isEmpty ? 'Alerta registrado' : alerta.tipoCrise,
+      'descricao': alerta.detalhes,
+      'horario': '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}',
+      'data': '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')}/${local.year}',
+      'grupo': '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')}/${local.year}',
+    };
   }
 }

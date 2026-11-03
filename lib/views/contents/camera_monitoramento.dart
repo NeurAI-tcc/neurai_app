@@ -6,12 +6,14 @@ import 'camera_preview.dart';
 
 class CameraMonitoramentoCard extends StatelessWidget {
   final String cameraId;
+  final String cameraIp;
   final String token;
   final String nomeCamera;
 
   const CameraMonitoramentoCard({
     super.key,
     required this.cameraId,
+    required this.cameraIp,
     required this.token,
     required this.nomeCamera,
   });
@@ -59,6 +61,7 @@ class CameraMonitoramentoCard extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => CameraAoVivoCard(
                     cameraId: cameraId,
+                    cameraIp: cameraIp,
                     token: token,
                     nomeCamera: nomeCamera,
                   ),
@@ -75,6 +78,7 @@ class CameraMonitoramentoCard extends StatelessWidget {
                   children: [
                     CameraPreview(
                       cameraId: cameraId,
+                      cameraIp: cameraIp,
                       token: token,
                     ),
 

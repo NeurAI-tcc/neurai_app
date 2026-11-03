@@ -11,13 +11,21 @@ class CameraStreamService {
   WebSocketChannel? _channel;
   Timer? _reconnectTimer;
   String? _cameraId;
+  String? _cameraIp;
   String? _token;
   bool _disposed = false;
 
   CameraStreamService({
     Uri? baseUri,
     this.reconnectDelay = const Duration(seconds: 3),
-  }) : baseUri = baseUri ?? Uri.parse('ws://192.168.0.65:8000/ws/camera/');
+  }) : baseUri =
+          baseUri ??
+          Uri.parse(
+            const String.fromEnvironment(
+              'NEURAI_WS_URL',
+              defaultValue: 'ws://192.168.0.65:8000/ws/camera/',
+            ),
+          );
   Stream<CameraFrame> get frames => _frames.stream;
 
   Future<void> connect({
@@ -30,8 +38,23 @@ class CameraStreamService {
     await _open();
   }
 
+  Future<void> connectWithCameraIp({
+    required String cameraId,
+    required String cameraIp,
+    required String token,
+  }) async {
+    _cameraIp = cameraIp;
+    await connect(cameraId: cameraId, token: token);
+  }
+
   Future<void> _open() async {
-    if (_disposed || _cameraId == null || _token == null) return;
+    if (_disposed ||
+        _cameraId == null ||
+        _cameraIp == null ||
+        _token == null ||
+        _cameraIp!.isEmpty) {
+      return;
+    }
 
   await _channel?.sink.close();
 
@@ -39,6 +62,7 @@ class CameraStreamService {
     path: '${baseUri.path.replaceFirst(RegExp(r'/$'), '')}/${Uri.encodeComponent(_cameraId!)}/',
     queryParameters: {
       'token': _token!,
+      'camera_ip': _cameraIp!,
     },
   );
 

@@ -125,20 +125,29 @@ class PerfilPage extends StatelessWidget {
             case 1:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HistoricoPage()),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      HistoricoPage(token: token, cameraId: cameraId),
+                ),
               );
               break;
             case 2:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AgendaPage()),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      AgendaPage(token: token, cameraId: cameraId),
+                ),
               );
               break;
             case 3:
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const RelatoriosScreen(),
+                  builder: (context) => RelatoriosScreen(
+                    token: token,
+                    cameraId: cameraId,
+                  ),
                 ),
               );
               break;

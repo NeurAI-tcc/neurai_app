@@ -1,5 +1,8 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+
+import '../models/camera_model.dart';
 import '../models/usuario_model.dart';
 
 class ApiService {
@@ -7,21 +10,32 @@ class ApiService {
   final http.Client client;
 
   ApiService({String? baseUrl, http.Client? client})
-    : baseUrl = baseUrl ?? 'http://192.168.0.65:8000/api',
+    : baseUrl =
+          baseUrl ??
+          const String.fromEnvironment(
+            'NEURAI_API_URL',
+            defaultValue: 'http://172.31.173.46/api',
+          ),
       client = client ?? http.Client();
 
   Future<UsuarioModel> buscarDadosUsuario(String usuarioId) async {
     final response = await client.get(
       Uri.parse('$baseUrl/usuario/$usuarioId/'),
     );
-
-    if (response.statusCode == 200) {
-      return UsuarioModel.fromJson(
-        Map<String, dynamic>.from(jsonDecode(response.body) as Map),
-      );
-    } else {
+    if (response.statusCode != 200) {
       throw Exception('Falha ao obter dados do usuário');
     }
+    return UsuarioModel.fromJson(
+      Map<String, dynamic>.from(jsonDecode(response.body) as Map),
+    );
+  }
+
+  Future<CameraModel> buscarCamera({required String token}) async {
+    final json = await getJson('/camera/', token: token);
+    final data = json['camera'] is Map
+        ? Map<String, dynamic>.from(json['camera'] as Map)
+        : json;
+    return CameraModel.fromJson(data);
   }
 
   Future<Map<String, dynamic>> getJson(

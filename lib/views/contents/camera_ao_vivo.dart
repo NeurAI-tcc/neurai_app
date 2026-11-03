@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -7,22 +6,22 @@ import 'package:flutter/material.dart';
 import 'package:neurai_app/models/camera_frame_model.dart';
 import 'package:neurai_app/services/camera_stream_service.dart';
 
-
 class CameraAoVivoCard extends StatefulWidget {
   final String cameraId;
+  final String cameraIp;
   final String token;
   final String nomeCamera;
 
   const CameraAoVivoCard({
     super.key,
     required this.cameraId,
+    required this.cameraIp,
     required this.token,
     this.nomeCamera = 'Câmera cadastrada',
   });
 
   @override
-  State<CameraAoVivoCard> createState() =>
-      _CameraAoVivoCardState();
+  State<CameraAoVivoCard> createState() => _CameraAoVivoCardState();
 }
 
 class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
@@ -64,8 +63,9 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
 
   Future<void> _conectar() async {
     try {
-      await _service.connect(
+      await _service.connectWithCameraIp(
         cameraId: widget.cameraId,
+        cameraIp: widget.cameraIp,
         token: widget.token,
       );
     } catch (_) {
@@ -87,9 +87,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
           ? base64Imagem.substring(base64Imagem.indexOf(',') + 1)
           : base64Imagem;
 
-      return base64Decode(
-        base64.normalize(conteudo.trim()),
-      );
+      return base64Decode(base64.normalize(conteudo.trim()));
     } catch (_) {
       return null;
     }
@@ -113,9 +111,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFF5298FF),
-        ),
+        border: Border.all(color: const Color(0xFF5298FF)),
         boxShadow: [
           BoxShadow(
             color: Colors.blue.withValues(alpha: 0.12),
@@ -132,18 +128,12 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
               const Expanded(
                 child: Text(
                   'Monitoramento ao vivo',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
                 ),
               ),
               Text(
                 widget.nomeCamera,
-                style: const TextStyle(
-                  fontSize: 9,
-                  color: Colors.black54,
-                ),
+                style: const TextStyle(fontSize: 9, color: Colors.black54),
               ),
             ],
           ),
@@ -164,8 +154,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
                             imagem,
                             fit: BoxFit.cover,
                             gaplessPlayback: true,
-                            errorBuilder: (_, __, ___) =>
-                                const Center(
+                            errorBuilder: (_, __, ___) => const Center(
                               child: Icon(
                                 Icons.broken_image_outlined,
                                 size: 40,
@@ -204,15 +193,11 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
                           Icon(
                             Icons.circle,
                             size: 7,
-                            color: imagem != null
-                                ? Colors.red
-                                : Colors.orange,
+                            color: imagem != null ? Colors.red : Colors.orange,
                           ),
                           const SizedBox(width: 5),
                           Text(
-                            imagem != null
-                                ? 'AO VIVO'
-                                : _erro ?? 'CONECTANDO',
+                            imagem != null ? 'AO VIVO' : _erro ?? 'CONECTANDO',
                             style: const TextStyle(
                               fontSize: 9,
                               color: Colors.white,
@@ -258,6 +243,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
                             MaterialPageRoute(
                               builder: (_) => CameraAoVivoPage(
                                 cameraId: widget.cameraId,
+                                cameraIp: widget.cameraIp,
                                 token: widget.token,
                                 nomeCamera: widget.nomeCamera,
                               ),
@@ -287,10 +273,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
             const SizedBox(height: 6),
             Text(
               'Detecções: ${_frame!.caixas.length}',
-              style: const TextStyle(
-                fontSize: 10,
-                color: Colors.black54,
-              ),
+              style: const TextStyle(fontSize: 10, color: Colors.black54),
             ),
           ],
         ],
@@ -302,12 +285,14 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
 // Página ampliada reutilizando o mesmo cartão.
 class CameraAoVivoPage extends StatelessWidget {
   final String cameraId;
+  final String cameraIp;
   final String token;
   final String nomeCamera;
 
   const CameraAoVivoPage({
     super.key,
     required this.cameraId,
+    required this.cameraIp,
     required this.token,
     required this.nomeCamera,
   });
@@ -325,6 +310,7 @@ class CameraAoVivoPage extends StatelessWidget {
           padding: const EdgeInsets.all(12),
           child: CameraAoVivoCard(
             cameraId: cameraId,
+            cameraIp: cameraIp,
             token: token,
             nomeCamera: nomeCamera,
           ),

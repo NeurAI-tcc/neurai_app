@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:neurai_app/services/auth_service.dart';
+import 'package:neurai_app/services/api_service.dart';
 import 'package:neurai_app/views/agenda_page.dart';
 import 'package:neurai_app/views/historico_page.dart';
 import 'package:neurai_app/views/perfil_page.dart';
@@ -16,7 +17,7 @@ class HomePage extends StatefulWidget {
 
   const HomePage({super.key, required this.cameraId, required this.token});
 
-  static const String cameraNome = 'Câmera da sala';
+  static const String cameraNome = 'Câmera cadastrada';
 
   static const Color fundo = Color(0xFFE8F6FF);
   static const Color azul = Color(0xFF5298FF);
@@ -28,8 +29,12 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final AuthService _authService = AuthService();
+  final ApiService _apiService = ApiService();
 
   String _nomeUsuario = 'usuário';
+  String _cameraId = '';
+  String _cameraIp = '';
+  String _cameraNome = HomePage.cameraNome;
   List<dynamic> _alertas = [];
   bool _carregando = true;
   String? _erro;
@@ -49,12 +54,18 @@ class _HomePageState extends State<HomePage> {
     try {
       final perfil = await _authService.getPerfil();
       final alertas = await _authService.getAlertas();
+      final camera = await _apiService.buscarCamera(token: widget.token);
 
       if (!mounted) return;
 
       setState(() {
         _nomeUsuario = _buscarNome(perfil);
         _alertas = alertas;
+        _cameraId = camera.id.isNotEmpty ? camera.id : widget.cameraId;
+        _cameraIp = camera.enderecoIp;
+        _cameraNome = camera.nome.isNotEmpty
+            ? camera.nome
+            : HomePage.cameraNome;
         _carregando = false;
       });
     } catch (e) {
@@ -209,9 +220,10 @@ class _HomePageState extends State<HomePage> {
 
               // CÂMERA
               CameraMonitoramentoCard(
-                cameraId: widget.cameraId,
+                cameraId: _cameraId,
+                cameraIp: _cameraIp,
                 token: widget.token,
-                nomeCamera: HomePage.cameraNome,
+                nomeCamera: _cameraNome,
               ),
 
               const SizedBox(height: 9),
@@ -309,24 +321,31 @@ class _HomePageState extends State<HomePage> {
             case 1:
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HistoricoPage()),
+                MaterialPageRoute(
+                  builder: (context) =>
+                      HistoricoPage(token: widget.token, cameraId: _cameraId),
+                ),
               );
               break;
             case 2:
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const AgendaPage(),
+                  builder: (context) =>
+                      AgendaPage(token: widget.token, cameraId: _cameraId),
                 ),
               );
               break;
             case 3:
               Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const RelatoriosScreen(),
-              ),
-            );
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RelatoriosScreen(
+                    token: widget.token,
+                    cameraId: _cameraId,
+                  ),
+                ),
+              );
               break;
             case 4:
               Navigator.push(

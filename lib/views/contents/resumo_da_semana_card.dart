@@ -1,9 +1,10 @@
-
 import 'package:flutter/material.dart';
+import '../../models/relatorio_model.dart';
 import 'titulo_card.dart';
 
 class ResumoSemanaCard extends StatelessWidget {
-  const ResumoSemanaCard({super.key});
+  final RelatorioModel? relatorio;
+  const ResumoSemanaCard({super.key, this.relatorio});
 
   @override
   Widget build(BuildContext context) {
@@ -16,12 +17,12 @@ class ResumoSemanaCard extends StatelessWidget {
           const TituloCard('Resumo da semana'),
           const SizedBox(height: 12),
           Row(
-            children: const [
+            children: [
               Expanded(
                 child: _Indicador(
                   cor: Color(0xFFE6F5FF),
                   icone: Icons.camera_alt_outlined,
-                  valor: '2h40m',
+                  valor: _tempo(relatorio?.tempoMonitorado),
                   descricao: 'Tempo\nregistrado',
                   iconeCor: Color(0xFF508DE1),
                 ),
@@ -31,7 +32,7 @@ class ResumoSemanaCard extends StatelessWidget {
                 child: _Indicador(
                   cor: Color(0xFFFFB5B8),
                   icone: Icons.gpp_maybe_outlined,
-                  valor: '2',
+                  valor: '${relatorio?.alertasRegistrados ?? 0}',
                   descricao: 'Alertas\nregistrados',
                   iconeCor: Color(0xFFE53935),
                 ),
@@ -41,7 +42,7 @@ class ResumoSemanaCard extends StatelessWidget {
                 child: _Indicador(
                   cor: Color(0xFFF0E7FF),
                   icone: Icons.calendar_month,
-                  valor: '5',
+                  valor: '${relatorio?.eventos ?? 0}',
                   descricao: 'Eventos\nregistrados',
                   iconeCor: Color(0xFF8659B9),
                 ),
@@ -51,6 +52,11 @@ class ResumoSemanaCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  static String _tempo(Duration? tempo) {
+    if (tempo == null) return '...';
+    return '${tempo.inHours}h${tempo.inMinutes.remainder(60).toString().padLeft(2, '0')}m';
   }
 }
 
@@ -73,10 +79,7 @@ class _Indicador extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 110,
-      padding: const EdgeInsets.symmetric(
-        vertical: 8,
-        horizontal: 3,
-      ),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 3),
       decoration: BoxDecoration(
         color: cor,
         borderRadius: BorderRadius.circular(5),

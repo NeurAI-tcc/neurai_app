@@ -1,10 +1,11 @@
-
 import 'package:flutter/material.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../../models/relatorio_model.dart';
 
 class BaixarRelatorioCard extends StatelessWidget {
-  const BaixarRelatorioCard({super.key});
+  final RelatorioModel? relatorio;
+  const BaixarRelatorioCard({super.key, this.relatorio});
 
   Future<void> _baixarRelatorio(BuildContext context) async {
     try {
@@ -31,37 +32,27 @@ class BaixarRelatorioCard extends StatelessWidget {
 
               pw.SizedBox(height: 20),
 
-              pw.Header(
-                level: 1,
-                child: pw.Text('Resumo da semana'),
-              ),
+              pw.Header(level: 1, child: pw.Text('Resumo da semana')),
 
               pw.Bullet(
-                text: 'Tempo registrado: 2h40m',
+                text:
+                    'Tempo registrado: ${relatorio?.tempoMonitorado.inHours ?? 0}h',
               ),
               pw.Bullet(
-                text: 'Alertas registrados: 2',
+                text:
+                    'Alertas registrados: ${relatorio?.alertasRegistrados ?? 0}',
               ),
               pw.Bullet(
-                text: 'Eventos registrados: 5',
+                text: 'Eventos registrados: ${relatorio?.eventos ?? 0}',
               ),
 
               pw.SizedBox(height: 20),
 
-              pw.Header(
-                level: 1,
-                child: pw.Text('Eventos registrados'),
-              ),
+              pw.Header(level: 1, child: pw.Text('Eventos registrados')),
 
-              pw.Bullet(
-                text: 'Sessao de terapia - 10/05/2026 as 14:00',
-              ),
-              pw.Bullet(
-                text: 'Passeio no parque - 12/05/2026 as 16:30',
-              ),
-              pw.Bullet(
-                text: 'Aula de musica - 13/05/2026 as 10:00',
-              ),
+              pw.Bullet(text: 'Sessao de terapia - 10/05/2026 as 14:00'),
+              pw.Bullet(text: 'Passeio no parque - 12/05/2026 as 16:30'),
+              pw.Bullet(text: 'Aula de musica - 13/05/2026 as 10:00'),
 
               pw.SizedBox(height: 20),
 
@@ -103,11 +94,9 @@ class BaixarRelatorioCard extends StatelessWidget {
     } catch (e) {
       if (!context.mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erro ao gerar o PDF: $e'),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Erro ao gerar o PDF: $e')));
     }
   }
 
@@ -117,9 +106,7 @@ class BaixarRelatorioCard extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: Colors.white,
-        border: Border.all(
-          color: const Color(0xFF78B9FF),
-        ),
+        border: Border.all(color: const Color(0xFF78B9FF)),
         borderRadius: BorderRadius.circular(9),
         boxShadow: [
           BoxShadow(
@@ -145,10 +132,7 @@ class BaixarRelatorioCard extends StatelessWidget {
               children: [
                 Text(
                   'Baixar relatório completo',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 3),
                 Text(
@@ -168,23 +152,12 @@ class BaixarRelatorioCard extends StatelessWidget {
 
           OutlinedButton.icon(
             onPressed: () => _baixarRelatorio(context),
-            icon: const Icon(
-              Icons.download,
-              size: 13,
-            ),
-            label: const Text(
-              'Baixar PDF',
-              style: TextStyle(fontSize: 8),
-            ),
+            icon: const Icon(Icons.download, size: 13),
+            label: const Text('Baixar PDF', style: TextStyle(fontSize: 8)),
             style: OutlinedButton.styleFrom(
               foregroundColor: const Color(0xFF4789EA),
-              side: const BorderSide(
-                color: Color(0xFF78B9FF),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 7,
-                vertical: 9,
-              ),
+              side: const BorderSide(color: Color(0xFF78B9FF)),
+              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 9),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               shape: RoundedRectangleBorder(

@@ -1,9 +1,11 @@
 
 import 'package:flutter/material.dart';
+import '../../models/relatorio_model.dart';
 import 'titulo_card.dart';
 
 class InsightsSemanaCard extends StatelessWidget {
-  const InsightsSemanaCard({super.key});
+  final RelatorioModel? relatorio;
+  const InsightsSemanaCard({super.key, this.relatorio});
 
   @override
   Widget build(BuildContext context) {
@@ -22,27 +24,21 @@ class InsightsSemanaCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          TituloCard('Principais insights da semana'),
-          SizedBox(height: 8),
-
-          _Insight(
-            icone: Icons.access_time,
-            cor: Color(0xFFE5F4FF),
-            iconeCor: Color(0xFF4D8FE8),
-            texto:
-                'Ariana ficou a maior parte do tempo em situações tranquilas.',
-          ),
-
-          SizedBox(height: 6),
-
-          _Insight(
-            icone: Icons.extension,
-            cor: Color(0xFFE5F4FF),
-            iconeCor: Color(0xFF508DE1),
-            texto:
-                'Houve 2 alertas severos. Fique atento aos horários de maior agitação.',
-          ),
+        children: [
+          const TituloCard('Principais insights da semana'),
+          const SizedBox(height: 8),
+          if (relatorio?.insights.isEmpty ?? true)
+            const Text('Nenhum insight disponível.')
+          else
+            ...relatorio!.insights.map((insight) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: _Insight(
+                icone: Icons.insights,
+                cor: const Color(0xFFE5F4FF),
+                iconeCor: const Color(0xFF4D8FE8),
+                texto: insight,
+              ),
+            )),
         ],
       ),
     );

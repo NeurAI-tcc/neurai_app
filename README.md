@@ -20,6 +20,18 @@ para outro host, configure a URL base na execução:
 flutter run --dart-define=NEURAI_API_URL=http://<ip-do-servidor>:8000/api
 ```
 
+O stream da câmera usa o WebSocket do backend e envia o `camera_ip` salvo em
+`/camera/` como parâmetro da conexão. Se o WebSocket estiver em outro endereço,
+configure-o separadamente:
+
+```sh
+flutter run --dart-define=NEURAI_WS_URL=ws://<ip-do-servidor>:8000/ws/camera/
+```
+
+As telas de histórico, agenda e relatórios consultam a API usando o token
+persistido após o login. A tela inicial consulta `/camera/`, usa o ID e o IP
+retornados e só então inicia a transmissão por WebSocket.
+
 HTTP sem TLS fica permitido apenas no build Android de depuração. Para builds
 de produção e outras plataformas, use uma URL HTTPS.
 

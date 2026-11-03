@@ -1,5 +1,8 @@
 
 import 'package:flutter/material.dart';
+import '../models/relatorio_model.dart';
+import '../services/auth_service.dart';
+import '../services/report_service.dart';
 import 'package:neurai_app/views/home.dart';
 
 import 'agenda_page.dart';
@@ -12,8 +15,43 @@ import 'contents/eventos_registrados.dart';
 import 'contents/insights_semana_card.dart';
 import 'contents/baixar_relatorio_card.dart';
 
-class RelatoriosScreen extends StatelessWidget {
-  const RelatoriosScreen({super.key});
+class RelatoriosScreen extends StatefulWidget {
+  final String token;
+  final String cameraId;
+  const RelatoriosScreen({super.key, this.token = '', this.cameraId = ''});
+
+  @override
+  State<RelatoriosScreen> createState() => _RelatoriosScreenState();
+}
+
+class _RelatoriosScreenState extends State<RelatoriosScreen> {
+  RelatorioModel? _relatorio;
+  String? _erro;
+  bool _carregando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregar();
+  }
+
+  Future<void> _carregar() async {
+    try {
+      final token = widget.token.isNotEmpty
+          ? widget.token
+          : await AuthService().token ?? '';
+      if (token.isEmpty) throw Exception('Token não encontrado.');
+      final relatorio = await ReportService().buscarDashboard(
+        token: token,
+        periodo: 'semana',
+      );
+      if (mounted) setState(() => _relatorio = relatorio);
+    } catch (error) {
+      if (mounted) setState(() => _erro = error.toString());
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
 
   static const Color fundo = Color(0xFFE8F5FF);
   static const Color azul = Color(0xFF5298FF);
@@ -133,7 +171,7 @@ class RelatoriosScreen extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // RESUMO DA SEMANA
-                    const ResumoSemanaCard(),
+                    ResumoSemanaCard(relatorio: _relatorio),
 
                     const SizedBox(height: 12),
 
@@ -143,12 +181,12 @@ class RelatoriosScreen extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     // INSIGHTS DA SEMANA
-                    const InsightsSemanaCard(),
+                    InsightsSemanaCard(relatorio: _relatorio),
 
                     const SizedBox(height: 12),
 
                     // DOWNLOAD DO RELATÓRIO
-                    const BaixarRelatorioCard(),
+                    BaixarRelatorioCard(relatorio: _relatorio),
 
                     const SizedBox(height: 8),
                   ],
@@ -168,7 +206,7 @@ class RelatoriosScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const HomePage(cameraId: '', token: '',),
+                  builder: (_) => HomePage(cameraId: widget.cameraId, token: widget.token),
                 ),
               );
               break;
@@ -177,7 +215,7 @@ class RelatoriosScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const HistoricoPage(),
+                  builder: (_) => HistoricoPage(token: widget.token, cameraId: widget.cameraId),
                 ),
               );
               break;
@@ -186,7 +224,7 @@ class RelatoriosScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const AgendaPage(),
+                  builder: (_) => AgendaPage(token: widget.token, cameraId: widget.cameraId),
                 ),
               );
               break;
@@ -199,10 +237,7 @@ class RelatoriosScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const PerfilPage(
-                    cameraId: '',
-                    token: '',
-                  ),
+                  builder: (_) => PerfilPage(cameraId: widget.cameraId, token: widget.token),
                 ),
               );
               break;
