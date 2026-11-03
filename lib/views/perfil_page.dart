@@ -121,10 +121,19 @@ class _PerfilPageState extends State<PerfilPage> {
                     if (_erro != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 12),
-                        child: Text(
-                          _erro!,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.red),
+                        child: Column(
+                          children: [
+                            Text(
+                              _erro!,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                            TextButton.icon(
+                              onPressed: _carregarPerfil,
+                              icon: const Icon(Icons.refresh),
+                              label: const Text('Tentar novamente'),
+                            ),
+                          ],
                         ),
                       ),
 
@@ -189,11 +198,10 @@ class _PerfilPageState extends State<PerfilPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      HistoricoPage(
-                        token: widget.token,
-                        cameraId: widget.cameraId,
-                      ),
+                  builder: (context) => HistoricoPage(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
               );
               break;
@@ -201,11 +209,10 @@ class _PerfilPageState extends State<PerfilPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      AgendaPage(
-                        token: widget.token,
-                        cameraId: widget.cameraId,
-                      ),
+                  builder: (context) => AgendaPage(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
               );
               break;
@@ -293,13 +300,11 @@ class _PerfilPageState extends State<PerfilPage> {
 
   CriancaModel? get _crianca => _usuario?.perfilCrianca;
 
-  String get _nomeCrianca =>
-      _crianca?.nomeCompleto.isNotEmpty == true
+  String get _nomeCrianca => _crianca?.nomeCompleto.isNotEmpty == true
       ? _crianca!.nomeCompleto
       : 'Perfil da criança';
 
-  String get _nomeResponsavel =>
-      _usuario?.nomeCompleto.isNotEmpty == true
+  String get _nomeResponsavel => _usuario?.nomeCompleto.isNotEmpty == true
       ? _usuario!.nomeCompleto
       : 'Não informado';
 
@@ -307,7 +312,10 @@ class _PerfilPageState extends State<PerfilPage> {
     final diagnostico = _crianca?.diagnosticoPrincipal;
     final idade = _crianca?.infoBasica.dataNascimento;
     final idadeTexto = idade == null ? '' : '${_calcularIdade(idade)} anos';
-    return [idadeTexto, diagnostico ?? ''].where((item) => item.isNotEmpty).join(' - ');
+    return [
+      idadeTexto,
+      diagnostico ?? '',
+    ].where((item) => item.isNotEmpty).join(' - ');
   }
 
   String get _dataNascimento {
@@ -317,8 +325,7 @@ class _PerfilPageState extends State<PerfilPage> {
         '${data.month.toString().padLeft(2, '0')}/${data.year}';
   }
 
-  String get _diagnostico =>
-      _crianca?.diagnosticoPrincipal.isNotEmpty == true
+  String get _diagnostico => _crianca?.diagnosticoPrincipal.isNotEmpty == true
       ? _crianca!.diagnosticoPrincipal
       : 'Não informado';
 

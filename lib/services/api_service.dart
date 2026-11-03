@@ -14,7 +14,7 @@ class ApiService {
           baseUrl ??
           const String.fromEnvironment(
             'NEURAI_API_URL',
-            defaultValue: 'http://10.32.161.46/api',
+            defaultValue: 'http://10.32.161.46:8000/api',
           ),
       client = client ?? http.Client();
 
@@ -40,10 +40,18 @@ class ApiService {
 
   Future<UsuarioModel> buscarPerfil({required String token}) async {
     final json = await getJson('/perfil/', token: token);
-    final data = json['usuario'] is Map
-        ? Map<String, dynamic>.from(json['usuario'] as Map)
-        : _perfilData(json);
+    final data = _unwrapPerfil(json);
     return UsuarioModel.fromJson(data);
+  }
+
+  Map<String, dynamic> _unwrapPerfil(Map<String, dynamic> json) {
+    for (final chave in const ['usuario', 'user', 'resultado', 'data']) {
+      final valor = json[chave];
+      if (valor is Map) {
+        return _unwrapPerfil(Map<String, dynamic>.from(valor));
+      }
+    }
+    return _perfilData(json);
   }
 
   Map<String, dynamic> _perfilData(Map<String, dynamic> json) {
