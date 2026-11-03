@@ -14,7 +14,7 @@ class ProfileService {
           baseUrl ??
           const String.fromEnvironment(
             'NEURAI_API_URL',
-            defaultValue: 'http://192.168.0.65:8000/api',
+            defaultValue: 'http://172.31.173.46:8000/api',
           ),
       client = client ?? http.Client();
 
@@ -45,14 +45,10 @@ class ProfileService {
     List<String> caminhos,
     String token,
   ) async {
-    final request =
-        http.MultipartRequest(
-            'POST',
-            Uri.parse(
-              '$baseUrl/usuario/$usuarioId/reconhecimento-facial/',
-            ),
-          )
-          ..headers['Authorization'] = 'Bearer $token';
+    final request = http.MultipartRequest(
+      'POST',
+      Uri.parse('$baseUrl/usuario/$usuarioId/reconhecimento-facial/'),
+    )..headers['Authorization'] = 'Bearer $token';
     for (final caminho in caminhos) {
       request.files.add(await http.MultipartFile.fromPath('fotos', caminho));
     }

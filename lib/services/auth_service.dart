@@ -19,13 +19,16 @@ class AuthService {
            baseUrl ??
            const String.fromEnvironment(
              'NEURAI_API_URL',
-             defaultValue: 'http://192.168.0.65:8000/api',
+             defaultValue: 'http://172.31.173.46:8000/api',
            ),
        client = client ?? http.Client(),
        storage = storage ?? const FlutterSecureStorage();
 
   Future<UsuarioModel> login(String email, String senha) async {
-    final result = await _post('/auth/login/', {'email': email, 'senha': senha});
+    final result = await _post('/auth/login/', {
+      'email': email,
+      'senha': senha,
+    });
     await _saveToken(result);
     return UsuarioModel.fromJson(_userJson(result));
   }
@@ -52,7 +55,8 @@ class AuthService {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(dados),
     );
-    if (cadastroResponse.statusCode < 200 || cadastroResponse.statusCode >= 300) {
+    if (cadastroResponse.statusCode < 200 ||
+        cadastroResponse.statusCode >= 300) {
       throw Exception(
         'Falha ao cadastrar (${cadastroResponse.statusCode}): ${cadastroResponse.body}',
       );
@@ -135,7 +139,9 @@ class AuthService {
   Future<String> _saveToken(Map<String, dynamic> result) async {
     final value = result['access'] ?? result['token'];
     if (value is! String || value.isEmpty) {
-      throw const FormatException('A API não retornou um token de autenticação.');
+      throw const FormatException(
+        'A API não retornou um token de autenticação.',
+      );
     }
     await storage.write(key: tokenKey, value: value);
     return value;
