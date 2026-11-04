@@ -13,8 +13,15 @@ class EventoModel {
     required this.localizacao,
   });
 
+  Map<String, dynamic> toJson() => {
+    'titulo': titulo,
+    'inicio': inicio.toIso8601String(),
+    'fim': fim.toIso8601String(),
+    'localizacao': localizacao,
+  };
+
   factory EventoModel.fromJson(Map<String, dynamic> json) => EventoModel(
-    id: json['id'] as String? ?? '',
+    id: json['id']?.toString() ?? '',
     titulo: json['titulo'] as String? ?? '',
     inicio:
         DateTime.tryParse(

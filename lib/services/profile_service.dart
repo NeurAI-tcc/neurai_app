@@ -45,10 +45,12 @@ class ProfileService {
     List<String> caminhos,
     String token,
   ) async {
-    final request = http.MultipartRequest(
-      'POST',
-      Uri.parse('$baseUrl/usuario/$usuarioId/reconhecimento-facial/'),
-    )..headers['Authorization'] = 'Bearer $token';
+    final request =
+        http.MultipartRequest(
+            'POST',
+            Uri.parse('$baseUrl/usuario/$usuarioId/reconhecimento-facial/'),
+          )
+          ..headers['Authorization'] = 'Bearer $token';
     for (final caminho in caminhos) {
       request.files.add(await http.MultipartFile.fromPath('fotos', caminho));
     }

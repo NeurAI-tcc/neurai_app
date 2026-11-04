@@ -28,7 +28,7 @@ class AlertService {
       queryParameters: {
         'page': '$pagina',
         'page_size': '$porPagina',
-        'tipo': ?tipo,
+        if (tipo != null) 'tipo': tipo,
       },
     );
     final raw = result['results'] ?? result['alertas'] ?? const [];

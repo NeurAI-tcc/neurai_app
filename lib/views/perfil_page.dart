@@ -107,6 +107,7 @@ class _PerfilPageState extends State<PerfilPage> {
                       dataNascimento: _dataNascimento,
                       responsavel: _nomeResponsavel,
                       email: _usuario?.email ?? 'Não informado',
+                      telefone: _usuario?.telefone ?? '',
                     ),
 
                     const SizedBox(height: 12),

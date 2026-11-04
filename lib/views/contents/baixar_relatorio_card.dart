@@ -50,9 +50,18 @@ class BaixarRelatorioCard extends StatelessWidget {
 
               pw.Header(level: 1, child: pw.Text('Eventos registrados')),
 
-              pw.Bullet(text: 'Sessao de terapia - 10/05/2026 as 14:00'),
-              pw.Bullet(text: 'Passeio no parque - 12/05/2026 as 16:30'),
-              pw.Bullet(text: 'Aula de musica - 13/05/2026 as 10:00'),
+              if (relatorio?.eventosDetalhados.isEmpty ?? true)
+                pw.Text('Nenhum evento registrado.')
+              else
+                ...relatorio!.eventosDetalhados.map(
+                  (evento) => pw.Bullet(
+                    text:
+                        '${evento.titulo} - ${evento.inicio.day.toString().padLeft(2, '0')}/'
+                        '${evento.inicio.month.toString().padLeft(2, '0')}/${evento.inicio.year} '
+                        'as ${evento.inicio.hour.toString().padLeft(2, '0')}:'
+                        '${evento.inicio.minute.toString().padLeft(2, '0')}',
+                  ),
+                ),
 
               pw.SizedBox(height: 20),
 
@@ -61,15 +70,12 @@ class BaixarRelatorioCard extends StatelessWidget {
                 child: pw.Text('Principais insights da semana'),
               ),
 
-              pw.Paragraph(
-                text:
-                    'Ariana ficou a maior parte do tempo em situacoes tranquilas.',
-              ),
-
-              pw.Paragraph(
-                text:
-                    'Houve 2 alertas severos. Fique atento aos horarios de maior agitacao.',
-              ),
+              if (relatorio?.insights.isEmpty ?? true)
+                pw.Text('Nenhum insight disponível.')
+              else
+                ...relatorio!.insights.map(
+                  (insight) => pw.Paragraph(text: insight),
+                ),
 
               pw.SizedBox(height: 20),
 

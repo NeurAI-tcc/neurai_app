@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../models/relatorio_model.dart';
 import '../services/auth_service.dart';
@@ -57,6 +56,30 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
   static const Color azul = Color(0xFF5298FF);
   static const Color texto = Color(0xFF263746);
 
+  String get _periodoTexto {
+    final hoje = DateTime.now();
+    final inicio = hoje.subtract(Duration(days: hoje.weekday - 1));
+    final fim = inicio.add(const Duration(days: 6));
+    return '${inicio.day.toString().padLeft(2, '0')} - '
+        '${fim.day.toString().padLeft(2, '0')} ${_mesAbreviado(fim.month)} '
+        '${fim.year}';
+  }
+
+  String _mesAbreviado(int mes) => const [
+    'jan.',
+    'fev.',
+    'mar.',
+    'abr.',
+    'mai.',
+    'jun.',
+    'jul.',
+    'ago.',
+    'set.',
+    'out.',
+    'nov.',
+    'dez.',
+  ][mes - 1];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,12 +91,7 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
             // CONTEÚDO DA PÁGINA
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  15,
-                  20,
-                  15,
-                  16,
-                ),
+                padding: const EdgeInsets.fromLTRB(15, 20, 15, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -95,10 +113,7 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: azul,
-                              width: 0.8,
-                            ),
+                            border: Border.all(color: azul, width: 0.8),
                           ),
                           child: CircleAvatar(
                             radius: 16,
@@ -109,11 +124,7 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
                                 width: 32,
                                 height: 32,
                                 fit: BoxFit.cover,
-                                errorBuilder: (
-                                  context,
-                                  error,
-                                  stackTrace,
-                                ) {
+                                errorBuilder: (context, error, stackTrace) {
                                   return const Icon(
                                     Icons.person,
                                     color: Color(0xFF649AC9),
@@ -137,12 +148,10 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        border: Border.all(
-                          color: const Color(0xFF8CC5FF),
-                        ),
+                        border: Border.all(color: const Color(0xFF8CC5FF)),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
@@ -152,11 +161,8 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
                           ),
                           SizedBox(width: 6),
                           Text(
-                            '07 - 13 set. 2026',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: texto,
-                            ),
+                            _periodoTexto,
+                            style: TextStyle(fontSize: 11, color: texto),
                           ),
                           SizedBox(width: 5),
                           Icon(
@@ -176,7 +182,7 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
                     const SizedBox(height: 12),
 
                     // EVENTOS REGISTRADOS
-                    const EventosRegistradosCard(),
+                    EventosRegistradosCard(relatorio: _relatorio),
 
                     const SizedBox(height: 12),
 
@@ -206,7 +212,8 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => HomePage(cameraId: widget.cameraId, token: widget.token),
+                  builder: (_) =>
+                      HomePage(cameraId: widget.cameraId, token: widget.token),
                 ),
               );
               break;
@@ -215,7 +222,10 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => HistoricoPage(token: widget.token, cameraId: widget.cameraId),
+                  builder: (_) => HistoricoPage(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
               );
               break;
@@ -224,7 +234,10 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => AgendaPage(token: widget.token, cameraId: widget.cameraId),
+                  builder: (_) => AgendaPage(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
               );
               break;
@@ -237,7 +250,10 @@ class _RelatoriosScreenState extends State<RelatoriosScreen> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => PerfilPage(cameraId: widget.cameraId, token: widget.token),
+                  builder: (_) => PerfilPage(
+                    cameraId: widget.cameraId,
+                    token: widget.token,
+                  ),
                 ),
               );
               break;

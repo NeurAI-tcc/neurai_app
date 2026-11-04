@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'perfil_card.dart';
 
@@ -6,12 +5,14 @@ class PerfilSobre extends StatelessWidget {
   final String dataNascimento;
   final String responsavel;
   final String email;
+  final String telefone;
 
   const PerfilSobre({
     super.key,
     required this.dataNascimento,
     required this.responsavel,
     required this.email,
+    required this.telefone,
   });
 
   static const Color azul = Color(0xFF5298FF);
@@ -33,10 +34,7 @@ class PerfilSobre extends StatelessWidget {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: cinza,
-                  ),
+                  style: const TextStyle(fontSize: 12, color: cinza),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -68,11 +66,7 @@ class PerfilSobre extends StatelessWidget {
               CircleAvatar(
                 radius: 19,
                 backgroundColor: Color(0xFFE3F2FF),
-                child: Icon(
-                  Icons.person,
-                  color: azul,
-                  size: 24,
-                ),
+                child: Icon(Icons.person, color: azul, size: 24),
               ),
               SizedBox(width: 9),
               Text(
@@ -86,10 +80,7 @@ class PerfilSobre extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 5),
-          _campo(
-            titulo: 'Data de nascimento',
-            valor: dataNascimento,
-          ),
+          _campo(titulo: 'Data de nascimento', valor: dataNascimento),
           const Divider(height: 1, thickness: 0.7),
           _campo(
             titulo: 'Responsável principal',
@@ -105,9 +96,7 @@ class PerfilSobre extends StatelessWidget {
                 padding: EdgeInsets.zero,
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('contato do responsável'),
-                    ),
+                    const SnackBar(content: Text('contato do responsável')),
                   );
                 },
                 icon: const Icon(
@@ -120,9 +109,11 @@ class PerfilSobre extends StatelessWidget {
           ),
           const Divider(height: 1, thickness: 0.7),
           _campo(
-            titulo: 'E-mail',
-            valor: email,
+            titulo: 'Telefone',
+            valor: telefone.isEmpty ? 'Não informado' : telefone,
           ),
+          const Divider(height: 1, thickness: 0.7),
+          _campo(titulo: 'E-mail', valor: email),
         ],
       ),
     );

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../controllers/alertas_controller.dart';
 import '../models/alerta_model.dart';
@@ -129,9 +128,7 @@ class _HistoricoPageState extends State<HistoricoPage> {
     }
 
     return alertas
-        .where(
-          (alerta) => alerta['categoria'] == filtroSelecionado,
-        )
+        .where((alerta) => alerta['categoria'] == filtroSelecionado)
         .toList();
   }
 
@@ -163,19 +160,12 @@ class _HistoricoPageState extends State<HistoricoPage> {
                     padding: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: azul,
-                        width: 0.8,
-                      ),
+                      border: Border.all(color: azul, width: 0.8),
                     ),
                     child: const CircleAvatar(
                       radius: 12,
                       backgroundColor: Color(0xFFD5EFFF),
-                      child: Icon(
-                        Icons.person,
-                        size: 18,
-                        color: azul,
-                      ),
+                      child: Icon(Icons.person, size: 18, color: azul),
                     ),
                   ),
                 ],
@@ -198,35 +188,23 @@ class _HistoricoPageState extends State<HistoricoPage> {
             // LISTA DE ALERTAS
             Expanded(
               child: lista.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'Nenhum alerta nesta categoria.',
-                      ),
-                    )
+                  ? const Center(child: Text('Sem alertas'))
                   : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(
-                        10,
-                        0,
-                        10,
-                        12,
-                      ),
+                      padding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
                       itemCount: lista.length,
                       itemBuilder: (context, index) {
                         final alerta = lista[index];
 
-                        final mostrarGrupo = index == 0 ||
-                            lista[index - 1]['grupo'] !=
-                                alerta['grupo'];
+                        final mostrarGrupo =
+                            index == 0 ||
+                            lista[index - 1]['grupo'] != alerta['grupo'];
 
                         return Column(
-                          crossAxisAlignment:
-                              CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             // TÍTULO DO DIA REUTILIZÁVEL
                             if (mostrarGrupo)
-                              GrupoAlertas(
-                                titulo: alerta['grupo'],
-                              ),
+                              GrupoAlertas(titulo: alerta['grupo']),
 
                             // CARD REUTILIZÁVEL
                             AlertaCard(
@@ -262,7 +240,6 @@ class _HistoricoPageState extends State<HistoricoPage> {
               );
               break;
             case 1:
-              
               break;
             case 2:
               Navigator.push(
@@ -277,25 +254,25 @@ class _HistoricoPageState extends State<HistoricoPage> {
               break;
             case 3:
               Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RelatoriosScreen(
-                  token: widget.token,
-                  cameraId: widget.cameraId,
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RelatoriosScreen(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
-              ),
-            );
+              );
               break;
             case 4:
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PerfilPage(
-                  cameraId: widget.cameraId,
-                  token: widget.token,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PerfilPage(
+                    cameraId: widget.cameraId,
+                    token: widget.token,
+                  ),
                 ),
-              ),
-            );
+              );
               break;
           }
         },
@@ -317,11 +294,16 @@ class _HistoricoPageState extends State<HistoricoPage> {
         : alerta.tipoCrise[0].toUpperCase() + alerta.tipoCrise.substring(1);
     return {
       'categoria': categoria,
-      'titulo': alerta.detalhes.isEmpty ? 'Alerta registrado' : alerta.tipoCrise,
+      'titulo': alerta.detalhes.isEmpty
+          ? 'Alerta registrado'
+          : alerta.tipoCrise,
       'descricao': alerta.detalhes,
-      'horario': '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}',
-      'data': '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')}/${local.year}',
-      'grupo': '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')}/${local.year}',
+      'horario':
+          '${local.hour.toString().padLeft(2, '0')}:${local.minute.toString().padLeft(2, '0')}',
+      'data':
+          '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')}/${local.year}',
+      'grupo':
+          '${local.day.toString().padLeft(2, '0')}/${local.month.toString().padLeft(2, '0')}/${local.year}',
     };
   }
 }

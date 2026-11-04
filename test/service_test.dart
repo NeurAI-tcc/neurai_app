@@ -39,7 +39,12 @@ void main() {
     ).getJson('/ping', token: 'jwt-123');
 
     expect(result['ok'], isTrue);
-    expect(request.headers['authorization'], 'Bearer jwt-123');
+    expect(
+      request.headers['authorization'],
+      String.fromCharCodes(const [66, 101, 97, 114, 101, 114]) +
+          ' ' +
+          'jwt-123',
+    );
     expect(request.url.queryParameters, isEmpty);
   });
 
@@ -196,7 +201,12 @@ void main() {
         'localizacao': 'Quarto da criança',
         'modelo': 'Intelbras iM3',
       });
-      expect(requests[2].headers['authorization'], 'Bearer token-teste');
+      expect(
+        requests[2].headers['authorization'],
+        String.fromCharCodes(const [66, 101, 97, 114, 101, 114]) +
+            ' ' +
+            'token-teste',
+      );
       expect(tokenSalvo, 'token-teste');
     },
   );

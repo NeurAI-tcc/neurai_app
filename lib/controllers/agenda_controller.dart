@@ -42,6 +42,23 @@ class AgendaController extends ChangeNotifier {
     }
   }
 
+  Future<bool> criarEvento(String token, EventoModel evento) async {
+    carregando = true;
+    erro = null;
+    notifyListeners();
+    try {
+      await api.postJson('/agenda/eventos/', evento.toJson(), token: token);
+      await carregarEventos(token, dia: evento.inicio);
+      return true;
+    } catch (e) {
+      erro = e.toString();
+      return false;
+    } finally {
+      carregando = false;
+      notifyListeners();
+    }
+  }
+
   String get _dataIso =>
       '${diaSelecionado.year.toString().padLeft(4, '0')}-${diaSelecionado.month.toString().padLeft(2, '0')}-${diaSelecionado.day.toString().padLeft(2, '0')}';
 }

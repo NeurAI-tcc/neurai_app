@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../controllers/agenda_controller.dart';
 import '../models/agenda_model.dart';
@@ -10,6 +9,7 @@ import 'contents/home_bottom_nav.dart';
 import 'contents/calendario_semanal.dart';
 import 'contents/evento_card.dart';
 import 'contents/titulo_secao_agenda.dart';
+import 'contents/evento_form.dart';
 import 'historico_page.dart';
 import 'perfil_page.dart';
 
@@ -105,12 +105,31 @@ class _AgendaPageState extends State<AgendaPage> {
         '${dataSelecionada.day.toString().padLeft(2, '0')} de $mes';
   }
 
-  void abrirNovoEvento() {
+  Future<void> abrirNovoEvento() async {
+    final token = widget.token.isNotEmpty
+        ? widget.token
+        : await AuthService().token ?? '';
+    if (token.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Token não encontrado. Faça login novamente.'),
+          ),
+        );
+      }
+      return;
+    }
+    if (!mounted) return;
+    final evento = await showDialog<EventoModel>(
+      context: context,
+      builder: (_) => EventoFormDialog(dataInicial: dataSelecionada),
+    );
+    if (evento == null || !mounted) return;
+    final salvo = await controller.criarEvento(token, evento);
+    if (!mounted || salvo) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Formulário de novo evento ainda não foi criado.',
-        ),
+      SnackBar(
+        content: Text(controller.erro ?? 'Não foi possível salvar o evento.'),
       ),
     );
   }
@@ -143,19 +162,12 @@ class _AgendaPageState extends State<AgendaPage> {
                     padding: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: azul,
-                        width: 0.8,
-                      ),
+                      border: Border.all(color: azul, width: 0.8),
                     ),
                     child: const CircleAvatar(
                       radius: 12,
                       backgroundColor: Color(0xFFD5EFFF),
-                      child: Icon(
-                        Icons.person,
-                        size: 18,
-                        color: azul,
-                      ),
+                      child: Icon(Icons.person, size: 18, color: azul),
                     ),
                   ),
                 ],
@@ -245,27 +257,23 @@ class _AgendaPageState extends State<AgendaPage> {
                       child: Center(
                         child: Text(
                           'Nenhum evento para este dia.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.black54),
                         ),
                       ),
                     )
                   else
-                    ...lista.map((evento) => EventoCard(
-                      titulo: evento.titulo,
-                      horario: _horario(evento),
-                      local: evento.localizacao,
-                    )),
+                    ...lista.map(
+                      (evento) => EventoCard(
+                        titulo: evento.titulo,
+                        horario: _horario(evento),
+                        local: evento.localizacao,
+                      ),
+                    ),
 
                   const SizedBox(height: 5),
 
                   const Padding(
-                    padding: EdgeInsets.only(
-                      left: 6,
-                      bottom: 14,
-                    ),
+                    padding: EdgeInsets.only(left: 6, bottom: 14),
                     child: Text(
                       'Próximos eventos',
                       style: TextStyle(
@@ -279,7 +287,10 @@ class _AgendaPageState extends State<AgendaPage> {
                   if (controller.carregando)
                     const Center(child: CircularProgressIndicator()),
                   if (controller.erro != null)
-                    Text(controller.erro!, style: const TextStyle(color: Colors.red)),
+                    Text(
+                      controller.erro!,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                 ],
               ),
             ),
@@ -313,29 +324,28 @@ class _AgendaPageState extends State<AgendaPage> {
               );
               break;
             case 2:
-              
               break;
             case 3:
               Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => RelatoriosScreen(
-                  token: widget.token,
-                  cameraId: widget.cameraId,
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RelatoriosScreen(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
-              ),
-            );
+              );
               break;
             case 4:
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => PerfilPage(
-                  cameraId: widget.cameraId,
-                  token: widget.token,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PerfilPage(
+                    cameraId: widget.cameraId,
+                    token: widget.token,
+                  ),
                 ),
-              ),
-            );
+              );
               break;
           }
         },

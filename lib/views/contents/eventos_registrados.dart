@@ -1,9 +1,11 @@
-
 import 'package:flutter/material.dart';
+import '../../models/agenda_model.dart';
+import '../../models/relatorio_model.dart';
 import 'package:neurai_app/views/contents/titulo_card.dart';
 
 class EventosRegistradosCard extends StatelessWidget {
-  const EventosRegistradosCard({super.key});
+  final RelatorioModel? relatorio;
+  const EventosRegistradosCard({super.key, this.relatorio});
 
   @override
   Widget build(BuildContext context) {
@@ -26,37 +28,31 @@ class EventosRegistradosCard extends StatelessWidget {
           const TituloCard('Eventos registrados'),
           const SizedBox(height: 8),
 
-          const _Evento(
-            titulo: 'Sessão de terapia',
-            data: '10 mai, 2026 - 14:00',
-            icone: Icons.calendar_month,
-            cor: Color(0xFFF0E6FF),
-            iconeCor: Color(0xFF8955BA),
-          ),
-
-          const SizedBox(height: 5),
-
-          const _Evento(
-            titulo: 'Passeio no parque',
-            data: '12 mai, 2026 - 16:30',
-            icone: Icons.person,
-            cor: Color(0xFFBFF2D1),
-            iconeCor: Color(0xFF43BF80),
-          ),
-
-          const SizedBox(height: 5),
-
-          const _Evento(
-            titulo: 'Aula de música',
-            data: '13 mai, 2026 - 10:00',
-            icone: Icons.person,
-            cor: Color(0xFFE5F4FF),
-            iconeCor: Color(0xFF5997E4),
-          ),
+          if (relatorio?.eventosDetalhados.isEmpty ?? true)
+            const Text('Nenhum evento registrado.')
+          else
+            ...relatorio!.eventosDetalhados.map(
+              (evento) => Padding(
+                padding: const EdgeInsets.only(bottom: 5),
+                child: _Evento(
+                  titulo: evento.titulo,
+                  data: _formatar(evento),
+                  icone: Icons.calendar_month,
+                  cor: const Color(0xFFF0E6FF),
+                  iconeCor: const Color(0xFF8955BA),
+                ),
+              ),
+            ),
         ],
       ),
     );
   }
+
+  static String _formatar(EventoModel evento) =>
+      '${evento.inicio.day.toString().padLeft(2, '0')}/'
+      '${evento.inicio.month.toString().padLeft(2, '0')}/${evento.inicio.year} - '
+      '${evento.inicio.hour.toString().padLeft(2, '0')}:'
+      '${evento.inicio.minute.toString().padLeft(2, '0')}';
 }
 
 class _Evento extends StatelessWidget {
@@ -78,10 +74,7 @@ class _Evento extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 8,
-        vertical: 7,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
       decoration: BoxDecoration(
         color: cor,
         borderRadius: BorderRadius.circular(5),

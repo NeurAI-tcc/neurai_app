@@ -166,6 +166,7 @@ class UsuarioModel {
   final String id;
   final String nomeCompleto;
   final String email;
+  final String telefone;
   final CriancaModel?
   perfilCrianca; // Nulo se for Admin ou se o cadastro estiver incompleto
 
@@ -173,6 +174,7 @@ class UsuarioModel {
     required this.id,
     required this.nomeCompleto,
     required this.email,
+    this.telefone = '',
     this.perfilCrianca,
   });
 
@@ -186,10 +188,13 @@ class UsuarioModel {
     return UsuarioModel(
       id: json['id']?.toString() ?? '',
       nomeCompleto:
-          json['nome_completo']?.toString() ??
-          json['nome']?.toString() ??
-          '',
+          json['nome_completo']?.toString() ?? json['nome']?.toString() ?? '',
       email: json['email']?.toString() ?? '',
+      telefone:
+          json['telefone']?.toString() ??
+          json['celular']?.toString() ??
+          json['phone']?.toString() ??
+          '',
       perfilCrianca: dadosCrianca == null
           ? null
           : CriancaModel.fromJson(dadosCrianca),
@@ -200,6 +205,7 @@ class UsuarioModel {
     'id': id,
     'nome_completo': nomeCompleto,
     'email': email,
+    'telefone': telefone,
     'perfil_crianca': perfilCrianca?.toJson(),
   };
 }
