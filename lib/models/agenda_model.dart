@@ -14,15 +14,15 @@ class EventoModel {
   });
 
   Map<String, dynamic> toJson() => {
-    'titulo': titulo,
-    'inicio': inicio.toIso8601String(),
-    'fim': fim.toIso8601String(),
+    'nome': titulo,
     'localizacao': localizacao,
+    'horario_inicio': inicio.toIso8601String(),
+    'horario_fim': fim.toIso8601String(),
   };
 
   factory EventoModel.fromJson(Map<String, dynamic> json) => EventoModel(
     id: json['id']?.toString() ?? '',
-    titulo: json['titulo'] as String? ?? '',
+    titulo: json['titulo'] as String? ?? json['nome'] as String? ?? '',
     inicio:
         DateTime.tryParse(
           json['inicio'] as String? ?? json['horario_inicio'] as String? ?? '',

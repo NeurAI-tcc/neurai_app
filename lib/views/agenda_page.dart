@@ -33,11 +33,26 @@ class _AgendaPageState extends State<AgendaPage> {
   @override
   void initState() {
     super.initState();
+
     controller = AgendaController();
     controller.addListener(_atualizar);
-    if (widget.token.isNotEmpty) {
-      controller.carregarEventos(widget.token);
+
+    _inicializarAgenda();
+  }
+
+  Future<void> _inicializarAgenda() async {
+    final token = widget.token.isNotEmpty
+        ? widget.token
+        : await AuthService().token ?? '';
+
+    if (token.isEmpty) {
+      setState(() {
+        controller.erro = 'Token não encontrado. Faça login novamente.';
+      });
+      return;
     }
+
+    await controller.carregarEventos(token);
   }
 
   void _atualizar() {

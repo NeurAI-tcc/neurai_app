@@ -24,7 +24,11 @@ class AgendaController extends ChangeNotifier {
         token: token,
         queryParameters: {'data': _dataIso},
       );
-      final raw = data['eventos'] ?? data['results'] ?? const [];
+
+      print(data);
+      print(data.runtimeType);
+
+      final raw = data['data'] ?? data['eventos'] ?? data['results'] ?? [];
       eventos = raw is List
           ? raw
                 .whereType<Map>()
