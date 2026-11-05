@@ -32,6 +32,16 @@ As telas de histórico, agenda e relatórios consultam a API usando o token
 persistido após o login. A tela inicial consulta `/camera/`, usa o ID e o IP
 retornados e só então inicia a transmissão por WebSocket.
 
+### Redefinição de senha
+
+Em `Esqueceu sua senha?`, o app chama as rotas
+`/auth/password-reset/request/`, `/auth/password-reset/verify/` e
+`/auth/password-reset/confirm/`. A API gera um código de seis dígitos, envia
+por e-mail, aceita o código por dez minutos e invalida-o depois da troca da
+senha. Para o envio funcionar, configure no `.env` do backend
+`EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`,
+`EMAIL_USE_TLS` e `DEFAULT_FROM_EMAIL`.
+
 HTTP sem TLS fica permitido apenas no build Android de depuração. Para builds
 de produção e outras plataformas, use uma URL HTTPS.
 

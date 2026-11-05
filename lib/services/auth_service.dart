@@ -19,7 +19,7 @@ class AuthService {
            baseUrl ??
            const String.fromEnvironment(
              'NEURAI_API_URL',
-             defaultValue: 'http://10.20.223.46:8000/api',
+             defaultValue: 'http://10.44.130.46:8000/api',
            ),
        client = client ?? http.Client(),
        storage = storage ?? const FlutterSecureStorage();
@@ -31,6 +31,31 @@ class AuthService {
     });
     await _saveToken(result);
     return UsuarioModel.fromJson(_userJson(result));
+  }
+
+  Future<void> solicitarRedefinicaoSenha(String email) async {
+    await _post('/auth/password-reset/request/', {'email': email.trim()});
+  }
+
+  Future<void> verificarCodigoRedefinicao(String email, String codigo) async {
+    await _post('/auth/password-reset/verify/', {
+      'email': email.trim(),
+      'codigo': codigo.trim(),
+    });
+  }
+
+  Future<void> confirmarRedefinicaoSenha({
+    required String email,
+    required String codigo,
+    required String novaSenha,
+    required String confirmarSenha,
+  }) async {
+    await _post('/auth/password-reset/confirm/', {
+      'email': email.trim(),
+      'codigo': codigo.trim(),
+      'nova_senha': novaSenha,
+      'confirmar_senha': confirmarSenha,
+    });
   }
 
   Future<void> cadastrarCompleto(Map<String, dynamic> cadastro) async {

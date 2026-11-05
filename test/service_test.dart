@@ -108,6 +108,36 @@ void main() {
     expect(() => service.login('user@test.com', 'wrong'), throwsException);
   });
 
+  test('AuthService executa as três etapas de redefinição de senha', () async {
+    final requests = <http.Request>[];
+    final client = TestClient((request) async {
+      requests.add(request as http.Request);
+      return http.Response(jsonEncode({'ok': true}), 200);
+    });
+    final service = AuthService(baseUrl: 'https://api.test', client: client);
+
+    await service.solicitarRedefinicaoSenha('user@test.com');
+    await service.verificarCodigoRedefinicao('user@test.com', '123456');
+    await service.confirmarRedefinicaoSenha(
+      email: 'user@test.com',
+      codigo: '123456',
+      novaSenha: 'nova-senha',
+      confirmarSenha: 'nova-senha',
+    );
+
+    expect(requests.map((request) => request.url.path), [
+      '/auth/password-reset/request/',
+      '/auth/password-reset/verify/',
+      '/auth/password-reset/confirm/',
+    ]);
+    expect(jsonDecode(requests[2].body), {
+      'email': 'user@test.com',
+      'codigo': '123456',
+      'nova_senha': 'nova-senha',
+      'confirmar_senha': 'nova-senha',
+    });
+  });
+
   test('AuthService envia cadastro completo para a rota de cadastro', () async {
     late http.BaseRequest sentRequest;
     final client = TestClient((request) async {

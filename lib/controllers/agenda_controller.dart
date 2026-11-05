@@ -25,9 +25,6 @@ class AgendaController extends ChangeNotifier {
         queryParameters: {'data': _dataIso},
       );
 
-      print(data);
-      print(data.runtimeType);
-
       final raw = data['data'] ?? data['eventos'] ?? data['results'] ?? [];
       eventos = raw is List
           ? raw
