@@ -69,7 +69,8 @@ class _EventoFormDialogState extends State<EventoFormDialog> {
   );
 
   void _salvar() {
-    if (!_formKey.currentState!.validate()) return;
+    final form = _formKey.currentState;
+    if (form == null || !form.validate()) return;
     final inicio = _combinar(_inicio);
     final fim = _combinar(_fim);
     if (!fim.isAfter(inicio)) {

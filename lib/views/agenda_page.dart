@@ -26,6 +26,7 @@ class _AgendaPageState extends State<AgendaPage> {
   static const Color fundo = Color(0xFFE8F6FF);
   static const Color azul = Color(0xFF5298FF);
   late final AgendaController controller;
+  String _token = '';
 
   DateTime get dataSelecionada => controller.diaSelecionado;
   List<EventoModel> get eventosDoDia => controller.eventos;
@@ -45,6 +46,8 @@ class _AgendaPageState extends State<AgendaPage> {
         ? widget.token
         : await AuthService().token ?? '';
 
+    if (!mounted) return;
+
     if (token.isEmpty) {
       setState(() {
         controller.erro = 'Token não encontrado. Faça login novamente.';
@@ -52,6 +55,7 @@ class _AgendaPageState extends State<AgendaPage> {
       return;
     }
 
+    _token = token;
     await controller.carregarEventos(token);
   }
 
@@ -211,12 +215,10 @@ class _AgendaPageState extends State<AgendaPage> {
                       color: Color(0xFF555555),
                     ),
                     onSelected: (mes) {
-                      setState(() {
-                        controller.carregarEventos(
-                          widget.token,
-                          dia: DateTime(dataSelecionada.year, mes, 1),
-                        );
-                      });
+                      controller.carregarEventos(
+                        _token,
+                        dia: DateTime(dataSelecionada.year, mes, 1),
+                      );
                     },
                     itemBuilder: (context) => List.generate(
                       12,
@@ -249,9 +251,7 @@ class _AgendaPageState extends State<AgendaPage> {
             CalendarioSemanal(
               dataSelecionada: dataSelecionada,
               onSelecionarData: (data) {
-                setState(() {
-                  controller.carregarEventos(widget.token, dia: data);
-                });
+                controller.carregarEventos(_token, dia: data);
               },
             ),
 
@@ -301,9 +301,9 @@ class _AgendaPageState extends State<AgendaPage> {
 
                   if (controller.carregando)
                     const Center(child: CircularProgressIndicator()),
-                  if (controller.erro != null)
+                  if (controller.erro case final erro?)
                     Text(
-                      controller.erro!,
+                      erro,
                       style: const TextStyle(color: Colors.red),
                     ),
                 ],
