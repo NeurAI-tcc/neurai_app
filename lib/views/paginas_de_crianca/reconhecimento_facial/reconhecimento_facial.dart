@@ -287,6 +287,7 @@ class _ReconhecimentoFacialPageState
 
                   Center(
                     child: PhotoCapture(
+                      key: ValueKey(etapaAtual),
                       onFotoSelecionada: fotoSelecionada,
                     ),
                   ),

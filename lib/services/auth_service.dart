@@ -19,7 +19,7 @@ class AuthService {
            baseUrl ??
            const String.fromEnvironment(
              'NEURAI_API_URL',
-             defaultValue: 'http://192.168.15.4:8000/api',
+             defaultValue: 'http://10.44.130.46:8000/api',
            ),
        client = client ?? http.Client(),
        storage = storage ?? const FlutterSecureStorage();
