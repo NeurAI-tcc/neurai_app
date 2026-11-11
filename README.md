@@ -13,7 +13,7 @@ e envia `endereco_ip`, `nome_camara`, `localizacao` e `modelo` para
 As fotos são enviadas em Base64; a API deve decodificá-las para armazená-las
 como binário.
 
-O endereço padrão da API é `http://192.168.0.65:8000/api`. Para apontar o app
+O endereço padrão da API é `http://192.168.15.5:8000/api`. Para apontar o app
 para outro host, configure a URL base na execução:
 
 ```sh
@@ -25,7 +25,7 @@ O stream da câmera usa o WebSocket do backend e envia o `camera_ip` salvo em
 configure-o separadamente:
 
 ```sh
-flutter run --dart-define=NEURAI_WS_URL=ws://<ip-do-servidor>:8000/ws/camera/
+flutter run --dart-define=NEURAI_WS_URL=ws://192.168.15.5:8000/ws/camera/
 ```
 
 As telas de histórico, agenda e relatórios consultam a API usando o token

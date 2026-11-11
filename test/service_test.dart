@@ -108,6 +108,30 @@ void main() {
     expect(() => service.login('user@test.com', 'wrong'), throwsException);
   });
 
+  test('AuthService aceita alertas retornados como lista JSON', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+          (call) async => call.method == 'read' ? 'jwt-teste' : null,
+        );
+    final client = TestClient(
+      (request) async => http.Response(
+        jsonEncode([
+          {'id': 'alerta-1'},
+        ]),
+        200,
+      ),
+    );
+    final alertas = await AuthService(
+      baseUrl: 'https://api.test',
+      client: client,
+    ).getAlertas();
+
+    expect(alertas, [
+      {'id': 'alerta-1'},
+    ]);
+  });
+
   test('AuthService executa as três etapas de redefinição de senha', () async {
     final requests = <http.Request>[];
     final client = TestClient((request) async {

@@ -6,12 +6,14 @@ class CameraPreview extends StatelessWidget {
   final String cameraId;
   final String cameraIp;
   final String token;
+  final bool compacto;
 
   const CameraPreview({
     super.key,
     required this.cameraId,
     required this.cameraIp,
     required this.token,
+    this.compacto = false,
   });
 
   @override
@@ -20,6 +22,7 @@ class CameraPreview extends StatelessWidget {
       cameraId: cameraId,
       cameraIp: cameraIp,
       token: token,
+      compacto: compacto,
     );
   }
 }

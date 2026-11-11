@@ -11,6 +11,7 @@ class CameraAoVivoCard extends StatefulWidget {
   final String cameraIp;
   final String token;
   final String nomeCamera;
+  final bool compacto;
 
   const CameraAoVivoCard({
     super.key,
@@ -18,6 +19,7 @@ class CameraAoVivoCard extends StatefulWidget {
     required this.cameraIp,
     required this.token,
     this.nomeCamera = 'Câmera cadastrada',
+    this.compacto = false,
   });
 
   @override
@@ -107,7 +109,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
         : _decodificarImagem(_frame!.imagemBase64);
 
     return Container(
-      padding: const EdgeInsets.all(9),
+      padding: widget.compacto ? EdgeInsets.zero : const EdgeInsets.all(9),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -123,153 +125,165 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Monitoramento ao vivo',
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+          if (!widget.compacto) ...[
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Monitoramento ao vivo',
+                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+                  ),
                 ),
-              ),
-              Text(
-                widget.nomeCamera,
-                style: const TextStyle(fontSize: 9, color: Colors.black54),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 7),
+                Text(
+                  widget.nomeCamera,
+                  style: const TextStyle(fontSize: 9, color: Colors.black54),
+                ),
+              ],
+            ),
+            const SizedBox(height: 7),
+          ],
 
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: AspectRatio(
-              aspectRatio: 16 / 9,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    color: const Color(0xFFDDF2FF),
-                    child: imagem != null
-                        ? Image.memory(
-                            imagem,
-                            fit: BoxFit.cover,
-                            gaplessPlayback: true,
-                            errorBuilder: (_, __, ___) => const Center(
-                              child: Icon(
-                                Icons.broken_image_outlined,
-                                size: 40,
-                              ),
-                            ),
-                          )
-                        : Center(
-                            child: _conectando
-                                ? const CircularProgressIndicator()
-                                : Icon(
-                                    _erro != null
-                                        ? Icons.wifi_off
-                                        : Icons.videocam_outlined,
-                                    size: 42,
-                                    color: Colors.blueGrey,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final altura = widget.compacto && constraints.hasBoundedHeight
+                    ? constraints.maxHeight
+                    : constraints.maxWidth * 9 / 16;
+                return SizedBox(
+                  height: altura,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Container(
+                        color: const Color(0xFFDDF2FF),
+                        child: imagem != null
+                            ? Image.memory(
+                                imagem,
+                                fit: BoxFit.cover,
+                                gaplessPlayback: true,
+                                errorBuilder: (_, __, ___) => const Center(
+                                  child: Icon(
+                                    Icons.broken_image_outlined,
+                                    size: 40,
                                   ),
-                          ),
-                  ),
+                                ),
+                              )
+                            : Center(
+                                child: _conectando
+                                    ? const CircularProgressIndicator()
+                                    : Icon(
+                                        _erro != null
+                                            ? Icons.wifi_off
+                                            : Icons.videocam_outlined,
+                                        size: 42,
+                                        color: Colors.blueGrey,
+                                      ),
+                              ),
+                      ),
 
-                  // Indicador da transmissão
-                  Positioned(
-                    left: 8,
-                    bottom: 8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.black54,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.circle,
-                            size: 7,
-                            color: imagem != null ? Colors.red : Colors.orange,
+                      // Indicador da transmissão
+                      Positioned(
+                        left: 8,
+                        bottom: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 5,
                           ),
-                          const SizedBox(width: 5),
-                          Text(
-                            imagem != null ? 'AO VIVO' : _erro ?? 'CONECTANDO',
-                            style: const TextStyle(
-                              fontSize: 9,
-                              color: Colors.white,
+                          decoration: BoxDecoration(
+                            color: Colors.black54,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.circle,
+                                size: 7,
+                                color: imagem != null
+                                    ? Colors.red
+                                    : Colors.orange,
+                              ),
+                              const SizedBox(width: 5),
+                              Text(
+                                imagem != null
+                                    ? 'AO VIVO'
+                                    : _erro ?? 'CONECTANDO',
+                                style: const TextStyle(
+                                  fontSize: 9,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      // Estado da IA
+                      if (_frame != null)
+                        Positioned(
+                          top: 8,
+                          right: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 7,
+                              vertical: 4,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  // Estado da IA
-                  if (_frame != null)
-                    Positioned(
-                      top: 8,
-                      right: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 7,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.black54,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'IA: ${_frame!.statusIa}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 9,
-                          ),
-                        ),
-                      ),
-                    ),
-
-                  // Abrir a câmera em tela cheia
-                  Positioned.fill(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => CameraAoVivoPage(
-                                cameraId: widget.cameraId,
-                                cameraIp: widget.cameraIp,
-                                token: widget.token,
-                                nomeCamera: widget.nomeCamera,
+                            decoration: BoxDecoration(
+                              color: Colors.black54,
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'IA: ${_frame!.statusIa}',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 9,
                               ),
                             ),
-                          );
-                        },
-                        child: const Align(
-                          alignment: Alignment.topLeft,
-                          child: Padding(
-                            padding: EdgeInsets.all(7),
-                            child: Icon(
-                              Icons.fullscreen,
-                              color: Colors.white,
-                              size: 21,
+                          ),
+                        ),
+
+                      // Abrir a câmera em tela cheia
+                      Positioned.fill(
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => CameraAoVivoPage(
+                                    cameraId: widget.cameraId,
+                                    cameraIp: widget.cameraIp,
+                                    token: widget.token,
+                                    nomeCamera: widget.nomeCamera,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: const Align(
+                              alignment: Alignment.topLeft,
+                              child: Padding(
+                                padding: EdgeInsets.all(7),
+                                child: Icon(
+                                  Icons.fullscreen,
+                                  color: Colors.white,
+                                  size: 21,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
           ),
 
-          if (_frame != null) ...[
+          if (!widget.compacto && _frame != null) ...[
             const SizedBox(height: 6),
             Text(
               'Detecções: ${_frame!.caixas.length}',

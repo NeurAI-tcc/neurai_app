@@ -19,13 +19,13 @@ class CameraStreamService {
     Uri? baseUri,
     this.reconnectDelay = const Duration(seconds: 3),
   }) : baseUri =
-          baseUri ??
-          Uri.parse(
-            const String.fromEnvironment(
-              'NEURAI_WS_URL',
-              defaultValue: 'ws://192.168.0.65:8000/ws/camera/',
-            ),
-          );
+           baseUri ??
+           Uri.parse(
+             const String.fromEnvironment(
+               'NEURAI_WS_URL',
+               defaultValue: 'ws://192.168.15.17:8000/ws/camera/',
+             ),
+           );
   Stream<CameraFrame> get frames => _frames.stream;
 
   Future<void> connect({
@@ -56,26 +56,24 @@ class CameraStreamService {
       return;
     }
 
-  await _channel?.sink.close();
+    await _channel?.sink.close();
 
-  final uri = baseUri.replace(
-    path: '${baseUri.path.replaceFirst(RegExp(r'/$'), '')}/${Uri.encodeComponent(_cameraId!)}/',
-    queryParameters: {
-      'token': _token!,
-      'camera_ip': _cameraIp!,
-    },
-  );
+    final uri = baseUri.replace(
+      path:
+          '${baseUri.path.replaceFirst(RegExp(r'/$'), '')}/${Uri.encodeComponent(_cameraId!)}/',
+      queryParameters: {'token': _token!, 'camera_ip': _cameraIp!},
+    );
 
-  final channel = WebSocketChannel.connect(uri);
-  _channel = channel;
+    final channel = WebSocketChannel.connect(uri);
+    _channel = channel;
 
-  channel.stream.listen(
-    _onMessage,
-    onError: (_) => _scheduleReconnect(),
-    onDone: _scheduleReconnect,
-    cancelOnError: true,
-  );
-}
+    channel.stream.listen(
+      _onMessage,
+      onError: (_) => _scheduleReconnect(),
+      onDone: _scheduleReconnect,
+      cancelOnError: true,
+    );
+  }
 
   void _onMessage(dynamic message) {
     try {

@@ -80,6 +80,7 @@ class CameraMonitoramentoCard extends StatelessWidget {
                       cameraId: cameraId,
                       cameraIp: cameraIp,
                       token: token,
+                      compacto: true,
                     ),
 
                     Positioned(

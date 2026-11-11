@@ -19,7 +19,7 @@ class AuthService {
            baseUrl ??
            const String.fromEnvironment(
              'NEURAI_API_URL',
-             defaultValue: 'http://10.44.130.46:8000/api',
+             defaultValue: 'http://192.168.15.17:8000/api',
            ),
        client = client ?? http.Client(),
        storage = storage ?? const FlutterSecureStorage();
@@ -116,7 +116,11 @@ class AuthService {
   Future<Map<String, dynamic>> getPerfil() => getDadosApi('/perfil/');
 
   Future<List<dynamic>> getAlertas() async {
-    final dados = await getDadosApi('/alertas/');
+    final dados = await _getDecodedApi('/alertas/');
+    if (dados is List) return dados;
+    if (dados is! Map) {
+      throw const FormatException('Resposta inválida da API de alertas.');
+    }
     final lista = dados['results'] ?? dados['resultados'] ?? dados['alertas'];
     return lista is List ? lista : const [];
   }
@@ -124,6 +128,14 @@ class AuthService {
   Future<Map<String, dynamic>> getCamera() => getDadosApi('/camera/');
 
   Future<Map<String, dynamic>> getDadosApi(String caminho) async {
+    final dados = await _getDecodedApi(caminho);
+    if (dados is! Map) {
+      throw const FormatException('Resposta inválida da API.');
+    }
+    return Map<String, dynamic>.from(dados);
+  }
+
+  Future<dynamic> _getDecodedApi(String caminho) async {
     final chave = await token;
     if (chave == null || chave.isEmpty) {
       throw Exception('Token não encontrado. Faça login novamente.');
@@ -135,9 +147,7 @@ class AuthService {
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw Exception('Erro ao consultar $caminho: ${response.statusCode}');
     }
-    final dados = jsonDecode(response.body);
-    if (dados is! Map) throw const FormatException('Resposta inválida da API.');
-    return Map<String, dynamic>.from(dados);
+    return jsonDecode(response.body);
   }
 
   Future<Map<String, dynamic>> _post(
