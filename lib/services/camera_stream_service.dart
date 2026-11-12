@@ -83,29 +83,34 @@ class CameraStreamService {
 
       final data = Map<String, dynamic>.from(decoded);
 
-      print("TIPO RECEBIDO: ${data['type']}");
-
       if (data['type'] == 'camera_status') {
         print("STATUS DA CÂMERA: ${data['status']}");
         return;
       }
 
-      if (data['type'] != 'video_frame') return;
+      if (data['type'] == 'video_frames') {
+        final frames = data['frames'];
 
-      final metadata = data['metadata'] is Map
-          ? Map<String, dynamic>.from(data['metadata'])
-          : <String, dynamic>{};
+        if (frames is! List) return;
 
-      metadata['imagem_base64'] = data['frame'] ?? '';
-      metadata['status_ia'] ??= 'normal';
-      metadata['caixas'] ??= [];
-      metadata['timestamp'] ??= DateTime.now().toIso8601String();
+        for (final item in frames) {
+          if (item is! Map) continue;
 
-      print("TAMANHO DA IMAGEM: ${metadata['imagem_base64'].length}");
+          final frameData = Map<String, dynamic>.from(item);
+          final metadata = frameData['metadata'] is Map
+              ? Map<String, dynamic>.from(frameData['metadata'])
+              : <String, dynamic>{};
 
-      _frames.add(CameraFrame.fromJson(metadata));
+          metadata['imagem_base64'] = frameData['frame'] ?? '';
+          metadata['status_ia'] ??= 'normal';
+          metadata['caixas'] ??= [];
+          metadata['timestamp'] ??= DateTime.now().toIso8601String();
+
+          _frames.add(CameraFrame.fromJson(metadata));
+        }
+      }
     } catch (error, stackTrace) {
-      print("ERRO AO RECEBER FRAME: $error");
+      print("ERRO AO RECEBER PACOTE: $error");
       print(stackTrace);
     }
   }
