@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:neurai_app/models/cadastro_crianca_draft.dart';
 
@@ -18,6 +17,8 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
   final nomeController = TextEditingController();
   final localizacaoController = TextEditingController();
   final modeloController = TextEditingController();
+  final usuarioCameraController = TextEditingController();
+  final senhaCameraController = TextEditingController();
   bool salvando = false;
 
   static const Color fundo = Color(0xFFE8F6FF);
@@ -30,6 +31,8 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
     nomeController.dispose();
     localizacaoController.dispose();
     modeloController.dispose();
+    usuarioCameraController.dispose();
+    senhaCameraController.dispose();
     super.dispose();
   }
 
@@ -49,6 +52,8 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
       'nome': nomeController.text.trim(),
       'localizacao': localizacaoController.text.trim(),
       'modelo': modeloController.text.trim(),
+      'usuario_camera': usuarioCameraController.text.trim(),
+      'senha_camera': senhaCameraController.text,
     });
 
     setState(() => salvando = true);
@@ -58,7 +63,9 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Não foi possível concluir o cadastro: $error')),
+          SnackBar(
+            content: Text('Não foi possível concluir o cadastro: $error'),
+          ),
         );
       }
     } finally {
@@ -160,8 +167,7 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
                                   width: 88,
                                   height: 88,
                                   fit: BoxFit.contain,
-                                  errorBuilder: (_, __, ___) =>
-                                      const Icon(
+                                  errorBuilder: (_, __, ___) => const Icon(
                                     Icons.videocam_outlined,
                                     size: 58,
                                     color: azul,
@@ -179,16 +185,14 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
                             hint: '192.168.1.10',
                             teclado: TextInputType.url,
                             validator: (valor) {
-                              final erro = validarCampo(
-                                valor,
-                                'o endereço IP',
-                              );
+                              final erro = validarCampo(valor, 'o endereço IP');
                               if (erro != null) return erro;
 
                               final ip = valor!.trim();
                               final partes = ip.split('.');
 
-                              final ipValido = partes.length == 4 &&
+                              final ipValido =
+                                  partes.length == 4 &&
                                   partes.every((parte) {
                                     final numero = int.tryParse(parte);
                                     return numero != null &&
@@ -232,6 +236,26 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
                             validator: (valor) =>
                                 validarCampo(valor, 'o modelo da câmera'),
                           ),
+
+                          const SizedBox(height: 13),
+
+                          _campo(
+                            titulo: 'Usuário da câmera',
+                            controller: usuarioCameraController,
+                            hint: 'Usuário da Conta da Câmera',
+                            validator: (valor) =>
+                                validarCampo(valor, 'o usuário da câmera'),
+                          ),
+
+                          const SizedBox(height: 13),
+
+                          _campo(
+                            titulo: 'Senha da câmera',
+                            controller: senhaCameraController,
+                            hint: 'Senha da Conta da Câmera',
+                            validator: (valor) =>
+                                validarCampo(valor, 'a senha da câmera'),
+                          ),
                         ],
                       ),
                     ),
@@ -252,10 +276,7 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
                   child: DecoratedBox(
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFFA8F1D9),
-                          Color(0xFF5298FF),
-                        ],
+                        colors: [Color(0xFFA8F1D9), Color(0xFF5298FF)],
                       ),
                       borderRadius: BorderRadius.circular(15),
                     ),
@@ -338,22 +359,15 @@ class _CadastroCameraPageState extends State<CadastroCameraPage> {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(
-                  color: Color(0xFFD6DCE2),
-                ),
+                borderSide: const BorderSide(color: Color(0xFFD6DCE2)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(
-                  color: Color(0xFFD6DCE2),
-                ),
+                borderSide: const BorderSide(color: Color(0xFFD6DCE2)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(9),
-                borderSide: const BorderSide(
-                  color: azul,
-                  width: 1.3,
-                ),
+                borderSide: const BorderSide(color: azul, width: 1.3),
               ),
               errorStyle: const TextStyle(fontSize: 9),
             ),

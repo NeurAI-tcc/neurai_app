@@ -319,14 +319,15 @@ class CameraAoVivoPage extends StatelessWidget {
         title: Text(nomeCamera),
         backgroundColor: const Color(0xFFE8F6FF),
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(12),
+      body: Padding(
+        padding: const EdgeInsets.all(12),
+        child: SizedBox.expand(
           child: CameraAoVivoCard(
             cameraId: cameraId,
             cameraIp: cameraIp,
             token: token,
             nomeCamera: nomeCamera,
+            compacto: true,
           ),
         ),
       ),

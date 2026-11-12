@@ -23,7 +23,7 @@ class CameraStreamService {
            Uri.parse(
              const String.fromEnvironment(
                'NEURAI_WS_URL',
-               defaultValue: 'ws://192.168.15.17:8000/ws/camera/',
+               defaultValue: 'ws://192.168.43.46:8000/ws/camera/',
              ),
            );
   Stream<CameraFrame> get frames => _frames.stream;
@@ -78,11 +78,35 @@ class CameraStreamService {
   void _onMessage(dynamic message) {
     try {
       final decoded = jsonDecode(message as String);
-      if (decoded is Map) {
-        _frames.add(CameraFrame.fromJson(Map<String, dynamic>.from(decoded)));
+
+      if (decoded is! Map) return;
+
+      final data = Map<String, dynamic>.from(decoded);
+
+      print("TIPO RECEBIDO: ${data['type']}");
+
+      if (data['type'] == 'camera_status') {
+        print("STATUS DA CÂMERA: ${data['status']}");
+        return;
       }
-    } on Object catch (error, stackTrace) {
-      _frames.addError(error, stackTrace);
+
+      if (data['type'] != 'video_frame') return;
+
+      final metadata = data['metadata'] is Map
+          ? Map<String, dynamic>.from(data['metadata'])
+          : <String, dynamic>{};
+
+      metadata['imagem_base64'] = data['frame'] ?? '';
+      metadata['status_ia'] ??= 'normal';
+      metadata['caixas'] ??= [];
+      metadata['timestamp'] ??= DateTime.now().toIso8601String();
+
+      print("TAMANHO DA IMAGEM: ${metadata['imagem_base64'].length}");
+
+      _frames.add(CameraFrame.fromJson(metadata));
+    } catch (error, stackTrace) {
+      print("ERRO AO RECEBER FRAME: $error");
+      print(stackTrace);
     }
   }
 

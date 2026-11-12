@@ -55,6 +55,9 @@ class _HomePageState extends State<HomePage> {
       final perfil = await _authService.getPerfil();
       final alertas = await _authService.getAlertas();
       final camera = await _apiService.buscarCamera(token: widget.token);
+      debugPrint('ID RECEBIDO DA API: ${camera.id}');
+      debugPrint('ID ANTIGO DO WIDGET: ${widget.cameraId}');
+      debugPrint('IP DA CAMERA: ${camera.enderecoIp}');
 
       if (!mounted) return;
 
