@@ -23,7 +23,7 @@ class CameraStreamService {
            Uri.parse(
              const String.fromEnvironment(
                'NEURAI_WS_URL',
-               defaultValue: 'ws://192.168.43.46:8000/ws/camera/',
+               defaultValue: 'ws://192.168.15.5:8000/ws/camera/',
              ),
            );
   Stream<CameraFrame> get frames => _frames.stream;
