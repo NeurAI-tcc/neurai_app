@@ -14,7 +14,7 @@ class ApiService {
           baseUrl ??
           const String.fromEnvironment(
             'NEURAI_API_URL',
-            defaultValue: 'http://192.168.15.5:8000/api',
+            defaultValue: 'http://192.168.15.6:8000/api',
           ),
       client = client ?? http.Client();
 

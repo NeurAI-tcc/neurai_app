@@ -84,7 +84,6 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
     if (base64Imagem.isEmpty) return null;
 
     try {
-      // Aceita tanto Base64 puro quanto data:image/jpeg;base64,...
       final conteudo = base64Imagem.contains(',')
           ? base64Imagem.substring(base64Imagem.indexOf(',') + 1)
           : base64Imagem;
@@ -150,6 +149,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
                 final altura = widget.compacto && constraints.hasBoundedHeight
                     ? constraints.maxHeight
                     : constraints.maxWidth * 9 / 16;
+
                 return SizedBox(
                   height: altura,
                   child: Stack(
@@ -181,6 +181,16 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
                                       ),
                               ),
                       ),
+
+                      // QUADRADO VERDE DA PESSOA IDENTIFICADA
+                      if (imagem != null && _frame != null)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: CustomPaint(
+                              painter: BoundingBoxPainter(_frame!.caixas),
+                            ),
+                          ),
+                        ),
 
                       // Indicador da transmissão
                       Positioned(
@@ -244,7 +254,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
                           ),
                         ),
 
-                      // Abrir a câmera em tela cheia
+                      // Abrir câmera em tela cheia
                       Positioned.fill(
                         child: Material(
                           color: Colors.transparent,
@@ -296,7 +306,7 @@ class _CameraAoVivoCardState extends State<CameraAoVivoCard> {
   }
 }
 
-// Página ampliada reutilizando o mesmo cartão.
+// Página ampliada
 class CameraAoVivoPage extends StatelessWidget {
   final String cameraId;
   final String cameraIp;
@@ -332,5 +342,58 @@ class CameraAoVivoPage extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Desenha o quadrado verde sobre a pessoa cadastrada
+class BoundingBoxPainter extends CustomPainter {
+  final List<BoundingBox> caixas;
+
+  BoundingBoxPainter(this.caixas);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final pincel = Paint()
+      ..color = const Color(0xFF00E676)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    for (final caixa in caixas) {
+      if (!caixa.recognized) continue;
+
+      final left = caixa.left * size.width;
+      final top = caixa.top * size.height;
+      final width = caixa.width * size.width;
+      final height = caixa.height * size.height;
+
+      final retangulo = Rect.fromLTWH(left, top, width, height);
+
+      canvas.drawRect(retangulo, pincel);
+
+      final texto = TextPainter(
+        text: const TextSpan(
+          text: 'Pessoa identificada',
+          style: TextStyle(
+            color: Color(0xFF00E676),
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+            backgroundColor: Colors.black54,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+
+      texto.layout();
+
+      texto.paint(
+        canvas,
+        Offset(left, (top - texto.height - 4).clamp(0.0, size.height)),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant BoundingBoxPainter oldDelegate) {
+    return true;
   }
 }
