@@ -1,9 +1,17 @@
-
 import 'package:flutter/material.dart';
 import 'perfil_card.dart';
 
 class PerfilClinico extends StatelessWidget {
-  const PerfilClinico({super.key});
+  final String diagnostico;
+  final String sensibilidades;
+  final String preferencias;
+
+  const PerfilClinico({
+    super.key,
+    required this.diagnostico,
+    required this.sensibilidades,
+    required this.preferencias,
+  });
 
   static const Color azul = Color(0xFF5298FF);
   static const Color cinza = Color(0xFF858B94);
@@ -21,11 +29,7 @@ class PerfilClinico extends StatelessWidget {
           CircleAvatar(
             radius: 18,
             backgroundColor: const Color(0xFFE3F2FF),
-            child: Icon(
-              icone,
-              size: 22,
-              color: azul,
-            ),
+            child: Icon(icone, size: 22, color: azul),
           ),
           const SizedBox(width: 9),
           Expanded(
@@ -34,10 +38,7 @@ class PerfilClinico extends StatelessWidget {
               children: [
                 Text(
                   titulo,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: cinza,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: cinza),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -68,11 +69,7 @@ class PerfilClinico extends StatelessWidget {
               CircleAvatar(
                 radius: 19,
                 backgroundColor: Color(0xFFE3F2FF),
-                child: Icon(
-                  Icons.favorite,
-                  color: azul,
-                  size: 23,
-                ),
+                child: Icon(Icons.favorite, color: azul, size: 23),
               ),
               SizedBox(width: 9),
               Text(
@@ -89,19 +86,19 @@ class PerfilClinico extends StatelessWidget {
           _linha(
             icone: Icons.monitor_heart,
             titulo: 'Diagnóstico',
-            valor: 'TEA - Nível 1',
+            valor: diagnostico,
           ),
           const Divider(height: 1, thickness: 0.7),
           _linha(
             icone: Icons.hearing,
             titulo: 'Sensibilidades',
-            valor: 'Luz, barulho alto, texturas',
+            valor: sensibilidades,
           ),
           const Divider(height: 1, thickness: 0.7),
           _linha(
             icone: Icons.star,
             titulo: 'Preferências',
-            valor: 'Músicas, brinquedos, rotina fixa',
+            valor: preferencias,
           ),
         ],
       ),

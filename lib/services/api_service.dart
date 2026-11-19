@@ -1,5 +1,8 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+
+import '../models/camera_model.dart';
 import '../models/usuario_model.dart';
 
 class ApiService {
@@ -7,21 +10,62 @@ class ApiService {
   final http.Client client;
 
   ApiService({String? baseUrl, http.Client? client})
-    : baseUrl = baseUrl ?? 'http://192.168.0.65:8000/api',
+    : baseUrl =
+          baseUrl ??
+          const String.fromEnvironment(
+            'NEURAI_API_URL',
+            defaultValue: 'http://192.168.43.46:8000/api',
+          ),
       client = client ?? http.Client();
 
   Future<UsuarioModel> buscarDadosUsuario(String usuarioId) async {
     final response = await client.get(
       Uri.parse('$baseUrl/usuario/$usuarioId/'),
     );
-
-    if (response.statusCode == 200) {
-      return UsuarioModel.fromJson(
-        Map<String, dynamic>.from(jsonDecode(response.body) as Map),
-      );
-    } else {
+    if (response.statusCode != 200) {
       throw Exception('Falha ao obter dados do usuário');
     }
+    return UsuarioModel.fromJson(
+      Map<String, dynamic>.from(jsonDecode(response.body) as Map),
+    );
+  }
+
+  Future<CameraModel> buscarCamera({required String token}) async {
+    final json = await getJson('/camera/', token: token);
+    final data = json['camera'] is Map
+        ? Map<String, dynamic>.from(json['camera'] as Map)
+        : json;
+    return CameraModel.fromJson(data);
+  }
+
+  Future<UsuarioModel> buscarPerfil({required String token}) async {
+    final json = await getJson('/perfil/', token: token);
+    final data = _unwrapPerfil(json);
+    return UsuarioModel.fromJson(data);
+  }
+
+  Map<String, dynamic> _unwrapPerfil(Map<String, dynamic> json) {
+    for (final chave in const ['usuario', 'user', 'resultado', 'data']) {
+      final valor = json[chave];
+      if (valor is Map) {
+        return _unwrapPerfil(Map<String, dynamic>.from(valor));
+      }
+    }
+    return _perfilData(json);
+  }
+
+  Map<String, dynamic> _perfilData(Map<String, dynamic> json) {
+    final perfil = json['perfil'];
+    if (perfil is! Map) return json;
+
+    final perfilMap = Map<String, dynamic>.from(perfil);
+    if (perfilMap.containsKey('email') ||
+        perfilMap.containsKey('nome_completo') ||
+        perfilMap.containsKey('perfil_crianca')) {
+      return perfilMap;
+    }
+
+    return {...json, 'perfil_crianca': perfilMap}..remove('perfil');
   }
 
   Future<Map<String, dynamic>> getJson(

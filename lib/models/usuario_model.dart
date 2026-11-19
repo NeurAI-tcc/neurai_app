@@ -166,6 +166,7 @@ class UsuarioModel {
   final String id;
   final String nomeCompleto;
   final String email;
+  final String telefone;
   final CriancaModel?
   perfilCrianca; // Nulo se for Admin ou se o cadastro estiver incompleto
 
@@ -173,19 +174,30 @@ class UsuarioModel {
     required this.id,
     required this.nomeCompleto,
     required this.email,
+    this.telefone = '',
     this.perfilCrianca,
   });
 
   factory UsuarioModel.fromJson(Map<String, dynamic> json) {
+    final perfil = json['perfil_crianca'] ?? json['crianca'] ?? json['child'];
+    final dadosCrianca = perfil is Map
+        ? Map<String, dynamic>.from(perfil)
+        : _parecePerfilCrianca(json)
+        ? json
+        : null;
     return UsuarioModel(
-      id: json['id'] as String? ?? '',
-      nomeCompleto: json['nome_completo'] as String? ?? '',
-      email: json['email'] as String? ?? '',
-      perfilCrianca: json['perfil_crianca'] is Map
-          ? CriancaModel.fromJson(
-              Map<String, dynamic>.from(json['perfil_crianca'] as Map),
-            )
-          : null,
+      id: json['id']?.toString() ?? '',
+      nomeCompleto:
+          json['nome_completo']?.toString() ?? json['nome']?.toString() ?? '',
+      email: json['email']?.toString() ?? '',
+      telefone:
+          json['telefone']?.toString() ??
+          json['celular']?.toString() ??
+          json['phone']?.toString() ??
+          '',
+      perfilCrianca: dadosCrianca == null
+          ? null
+          : CriancaModel.fromJson(dadosCrianca),
     );
   }
 
@@ -193,9 +205,17 @@ class UsuarioModel {
     'id': id,
     'nome_completo': nomeCompleto,
     'email': email,
+    'telefone': telefone,
     'perfil_crianca': perfilCrianca?.toJson(),
   };
 }
+
+bool _parecePerfilCrianca(Map<String, dynamic> json) =>
+    json.containsKey('data_nascimento') ||
+    json.containsKey('diagnostico') ||
+    json.containsKey('diagnostico_principal') ||
+    json.containsKey('preferencias') ||
+    json.containsKey('sensibilidades');
 
 DateTime? _dateFromJson(Object? value) =>
     value is String ? DateTime.tryParse(value) : null;

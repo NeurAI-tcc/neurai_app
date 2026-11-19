@@ -13,12 +13,34 @@ e envia `endereco_ip`, `nome_camara`, `localizacao` e `modelo` para
 As fotos são enviadas em Base64; a API deve decodificá-las para armazená-las
 como binário.
 
-O endereço padrão da API é `http://192.168.0.65:8000/api`. Para apontar o app
+O endereço padrão da API é `http://192.168.15.5:8000/api`. Para apontar o app
 para outro host, configure a URL base na execução:
 
 ```sh
 flutter run --dart-define=NEURAI_API_URL=http://<ip-do-servidor>:8000/api
 ```
+
+O stream da câmera usa o WebSocket do backend e envia o `camera_ip` salvo em
+`/camera/` como parâmetro da conexão. Se o WebSocket estiver em outro endereço,
+configure-o separadamente:
+
+```sh
+flutter run --dart-define=NEURAI_WS_URL=ws://192.168.15.5:8000/ws/camera/
+```
+
+As telas de histórico, agenda e relatórios consultam a API usando o token
+persistido após o login. A tela inicial consulta `/camera/`, usa o ID e o IP
+retornados e só então inicia a transmissão por WebSocket.
+
+### Redefinição de senha
+
+Em `Esqueceu sua senha?`, o app chama as rotas
+`/auth/password-reset/request/`, `/auth/password-reset/verify/` e
+`/auth/password-reset/confirm/`. A API gera um código de seis dígitos, envia
+por e-mail, aceita o código por dez minutos e invalida-o depois da troca da
+senha. Para o envio funcionar, configure no `.env` do backend
+`EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, `EMAIL_HOST_PASSWORD`,
+`EMAIL_USE_TLS` e `DEFAULT_FROM_EMAIL`.
 
 HTTP sem TLS fica permitido apenas no build Android de depuração. Para builds
 de produção e outras plataformas, use uma URL HTTPS.

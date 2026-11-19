@@ -35,8 +35,13 @@ class DashboardController extends ChangeNotifier {
 
   Future<void> iniciarCamera({
     required String cameraId,
+    required String cameraIp,
     required String token,
-  }) => cameraService.connect(cameraId: cameraId, token: token);
+  }) => cameraService.connectWithCameraIp(
+    cameraId: cameraId,
+    cameraIp: cameraIp,
+    token: token,
+  );
 
   Future<void> carregarResumo(String token) async {
     carregando = true;

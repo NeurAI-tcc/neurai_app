@@ -24,7 +24,8 @@ class AgendaController extends ChangeNotifier {
         token: token,
         queryParameters: {'data': _dataIso},
       );
-      final raw = data['eventos'] ?? data['results'] ?? const [];
+
+      final raw = data['data'] ?? data['eventos'] ?? data['results'] ?? [];
       eventos = raw is List
           ? raw
                 .whereType<Map>()
@@ -36,6 +37,23 @@ class AgendaController extends ChangeNotifier {
           : [];
     } catch (e) {
       erro = e.toString();
+    } finally {
+      carregando = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> criarEvento(String token, EventoModel evento) async {
+    carregando = true;
+    erro = null;
+    notifyListeners();
+    try {
+      await api.postJson('/agenda/eventos/', evento.toJson(), token: token);
+      await carregarEventos(token, dia: evento.inicio);
+      return true;
+    } catch (e) {
+      erro = e.toString();
+      return false;
     } finally {
       carregando = false;
       notifyListeners();

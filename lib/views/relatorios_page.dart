@@ -1,5 +1,7 @@
-
 import 'package:flutter/material.dart';
+import '../models/relatorio_model.dart';
+import '../services/auth_service.dart';
+import '../services/report_service.dart';
 import 'package:neurai_app/views/home.dart';
 
 import 'agenda_page.dart';
@@ -12,12 +14,71 @@ import 'contents/eventos_registrados.dart';
 import 'contents/insights_semana_card.dart';
 import 'contents/baixar_relatorio_card.dart';
 
-class RelatoriosScreen extends StatelessWidget {
-  const RelatoriosScreen({super.key});
+class RelatoriosScreen extends StatefulWidget {
+  final String token;
+  final String cameraId;
+  const RelatoriosScreen({super.key, this.token = '', this.cameraId = ''});
+
+  @override
+  State<RelatoriosScreen> createState() => _RelatoriosScreenState();
+}
+
+class _RelatoriosScreenState extends State<RelatoriosScreen> {
+  RelatorioModel? _relatorio;
+  String? _erro;
+  bool _carregando = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _carregar();
+  }
+
+  Future<void> _carregar() async {
+    try {
+      final token = widget.token.isNotEmpty
+          ? widget.token
+          : await AuthService().token ?? '';
+      if (token.isEmpty) throw Exception('Token não encontrado.');
+      final relatorio = await ReportService().buscarDashboard(
+        token: token,
+        periodo: 'semana',
+      );
+      if (mounted) setState(() => _relatorio = relatorio);
+    } catch (error) {
+      if (mounted) setState(() => _erro = error.toString());
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
 
   static const Color fundo = Color(0xFFE8F5FF);
   static const Color azul = Color(0xFF5298FF);
   static const Color texto = Color(0xFF263746);
+
+  String get _periodoTexto {
+    final hoje = DateTime.now();
+    final inicio = hoje.subtract(Duration(days: hoje.weekday - 1));
+    final fim = inicio.add(const Duration(days: 6));
+    return '${inicio.day.toString().padLeft(2, '0')} - '
+        '${fim.day.toString().padLeft(2, '0')} ${_mesAbreviado(fim.month)} '
+        '${fim.year}';
+  }
+
+  String _mesAbreviado(int mes) => const [
+    'jan.',
+    'fev.',
+    'mar.',
+    'abr.',
+    'mai.',
+    'jun.',
+    'jul.',
+    'ago.',
+    'set.',
+    'out.',
+    'nov.',
+    'dez.',
+  ][mes - 1];
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +91,7 @@ class RelatoriosScreen extends StatelessWidget {
             // CONTEÚDO DA PÁGINA
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  15,
-                  20,
-                  15,
-                  16,
-                ),
+                padding: const EdgeInsets.fromLTRB(15, 20, 15, 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -57,10 +113,7 @@ class RelatoriosScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(2),
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: azul,
-                              width: 0.8,
-                            ),
+                            border: Border.all(color: azul, width: 0.8),
                           ),
                           child: CircleAvatar(
                             radius: 16,
@@ -71,11 +124,7 @@ class RelatoriosScreen extends StatelessWidget {
                                 width: 32,
                                 height: 32,
                                 fit: BoxFit.cover,
-                                errorBuilder: (
-                                  context,
-                                  error,
-                                  stackTrace,
-                                ) {
+                                errorBuilder: (context, error, stackTrace) {
                                   return const Icon(
                                     Icons.person,
                                     color: Color(0xFF649AC9),
@@ -99,12 +148,10 @@ class RelatoriosScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        border: Border.all(
-                          color: const Color(0xFF8CC5FF),
-                        ),
+                        border: Border.all(color: const Color(0xFF8CC5FF)),
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
@@ -114,11 +161,8 @@ class RelatoriosScreen extends StatelessWidget {
                           ),
                           SizedBox(width: 6),
                           Text(
-                            '07 - 13 set. 2026',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: texto,
-                            ),
+                            _periodoTexto,
+                            style: TextStyle(fontSize: 11, color: texto),
                           ),
                           SizedBox(width: 5),
                           Icon(
@@ -133,22 +177,22 @@ class RelatoriosScreen extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // RESUMO DA SEMANA
-                    const ResumoSemanaCard(),
+                    ResumoSemanaCard(relatorio: _relatorio),
 
                     const SizedBox(height: 12),
 
                     // EVENTOS REGISTRADOS
-                    const EventosRegistradosCard(),
+                    EventosRegistradosCard(relatorio: _relatorio),
 
                     const SizedBox(height: 12),
 
                     // INSIGHTS DA SEMANA
-                    const InsightsSemanaCard(),
+                    InsightsSemanaCard(relatorio: _relatorio),
 
                     const SizedBox(height: 12),
 
                     // DOWNLOAD DO RELATÓRIO
-                    const BaixarRelatorioCard(),
+                    BaixarRelatorioCard(relatorio: _relatorio),
 
                     const SizedBox(height: 8),
                   ],
@@ -168,7 +212,8 @@ class RelatoriosScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const HomePage(cameraId: '', token: '',),
+                  builder: (_) =>
+                      HomePage(cameraId: widget.cameraId, token: widget.token),
                 ),
               );
               break;
@@ -177,7 +222,10 @@ class RelatoriosScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const HistoricoPage(),
+                  builder: (_) => HistoricoPage(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
               );
               break;
@@ -186,7 +234,10 @@ class RelatoriosScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const AgendaPage(),
+                  builder: (_) => AgendaPage(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
               );
               break;
@@ -199,9 +250,9 @@ class RelatoriosScreen extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const PerfilPage(
-                    cameraId: '',
-                    token: '',
+                  builder: (_) => PerfilPage(
+                    cameraId: widget.cameraId,
+                    token: widget.token,
                   ),
                 ),
               );

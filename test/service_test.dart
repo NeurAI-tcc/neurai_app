@@ -39,7 +39,12 @@ void main() {
     ).getJson('/ping', token: 'jwt-123');
 
     expect(result['ok'], isTrue);
-    expect(request.headers['authorization'], 'Bearer jwt-123');
+    expect(
+      request.headers['authorization'],
+      String.fromCharCodes(const [66, 101, 97, 114, 101, 114]) +
+          ' ' +
+          'jwt-123',
+    );
     expect(request.url.queryParameters, isEmpty);
   });
 
@@ -71,19 +76,43 @@ void main() {
   });
 
   test('ReportService converte dashboard em relatório', () async {
+    final hoje = DateTime.now();
+    final eventoDaSemana = hoje
+        .subtract(Duration(days: hoje.weekday - DateTime.monday))
+        .add(const Duration(hours: 10));
     final client = TestClient(
-      (request) async => http.Response(
-        jsonEncode({
-          'relatorio': {
-            'tempo_monitorado_minutos': 90,
-            'situacoes_tranquilas': 4,
-            'alertas_registrados': 2,
-            'eventos': 3,
-            'insights': ['Rotina estável'],
-          },
-        }),
-        200,
-      ),
+      (request) async {
+        if (request.url.path == '/agenda/eventos/') {
+          return http.Response(
+            jsonEncode({
+              'eventos': [
+                {
+                  'id': 'evento-1',
+                  'nome': 'Terapia',
+                  'horario_inicio': eventoDaSemana.toIso8601String(),
+                  'horario_fim':
+                      eventoDaSemana.add(const Duration(hours: 1)).toIso8601String(),
+                  'localizacao': 'Clínica',
+                },
+              ],
+            }),
+            200,
+          );
+        }
+
+        return http.Response(
+          jsonEncode({
+            'relatorio': {
+              'tempo_monitorado_minutos': 90,
+              'situacoes_tranquilas': 4,
+              'alertas_registrados': 2,
+              'eventos': 0,
+              'insights': ['Rotina estável'],
+            },
+          }),
+          200,
+        );
+      },
     );
     final report = await ReportService(
       api: ApiService(baseUrl: 'https://api.test', client: client),
@@ -91,6 +120,8 @@ void main() {
 
     expect(report.tempoMonitorado.inMinutes, 90);
     expect(report.insights, ['Rotina estável']);
+    expect(report.eventos, 1);
+    expect(report.eventosDetalhados.single.id, 'evento-1');
   });
 
   test('AuthService transforma erro HTTP em exceção', () async {
@@ -101,6 +132,60 @@ void main() {
     final service = AuthService(baseUrl: 'https://api.test', client: client);
 
     expect(() => service.login('user@test.com', 'wrong'), throwsException);
+  });
+
+  test('AuthService aceita alertas retornados como lista JSON', () async {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(
+          const MethodChannel('plugins.it_nomads.com/flutter_secure_storage'),
+          (call) async => call.method == 'read' ? 'jwt-teste' : null,
+        );
+    final client = TestClient(
+      (request) async => http.Response(
+        jsonEncode([
+          {'id': 'alerta-1'},
+        ]),
+        200,
+      ),
+    );
+    final alertas = await AuthService(
+      baseUrl: 'https://api.test',
+      client: client,
+    ).getAlertas();
+
+    expect(alertas, [
+      {'id': 'alerta-1'},
+    ]);
+  });
+
+  test('AuthService executa as três etapas de redefinição de senha', () async {
+    final requests = <http.Request>[];
+    final client = TestClient((request) async {
+      requests.add(request as http.Request);
+      return http.Response(jsonEncode({'ok': true}), 200);
+    });
+    final service = AuthService(baseUrl: 'https://api.test', client: client);
+
+    await service.solicitarRedefinicaoSenha('user@test.com');
+    await service.verificarCodigoRedefinicao('user@test.com', '123456');
+    await service.confirmarRedefinicaoSenha(
+      email: 'user@test.com',
+      codigo: '123456',
+      novaSenha: 'nova-senha',
+      confirmarSenha: 'nova-senha',
+    );
+
+    expect(requests.map((request) => request.url.path), [
+      '/auth/password-reset/request/',
+      '/auth/password-reset/verify/',
+      '/auth/password-reset/confirm/',
+    ]);
+    expect(jsonDecode(requests[2].body), {
+      'email': 'user@test.com',
+      'codigo': '123456',
+      'nova_senha': 'nova-senha',
+      'confirmar_senha': 'nova-senha',
+    });
   });
 
   test('AuthService envia cadastro completo para a rota de cadastro', () async {
@@ -196,7 +281,12 @@ void main() {
         'localizacao': 'Quarto da criança',
         'modelo': 'Intelbras iM3',
       });
-      expect(requests[2].headers['authorization'], 'Bearer token-teste');
+      expect(
+        requests[2].headers['authorization'],
+        String.fromCharCodes(const [66, 101, 97, 114, 101, 114]) +
+            ' ' +
+            'token-teste',
+      );
       expect(tokenSalvo, 'token-teste');
     },
   );

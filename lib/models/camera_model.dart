@@ -14,7 +14,7 @@ class CameraModel {
   });
 
   factory CameraModel.fromJson(Map<String, dynamic> json) => CameraModel(
-    id: json['id'] as String? ?? '',
+    id: json['id']?.toString() ?? '',
     enderecoIp: json['endereco_ip'] as String? ?? json['ip'] as String? ?? '',
     nome: json['nome'] as String? ?? '',
     localizacao: json['localizacao'] as String? ?? '',

@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class CalendarioSemanal extends StatelessWidget {
@@ -13,33 +12,35 @@ class CalendarioSemanal extends StatelessWidget {
 
   static const Color azul = Color(0xFF1689F8);
 
+  static DateTime inicioDaSemana(DateTime data) {
+    final dataNormalizada = DateTime(data.year, data.month, data.day);
+    return dataNormalizada.subtract(
+      Duration(days: dataNormalizada.weekday % DateTime.daysPerWeek),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final inicioSemana = dataSelecionada.subtract(
-      Duration(days: dataSelecionada.weekday % 7),
-    );
+    final inicioSemana = inicioDaSemana(dataSelecionada);
 
     final dias = List.generate(
       7,
       (index) => inicioSemana.add(Duration(days: index)),
     );
 
-    const nomesDias = [
-      'DOM',
-      'SEG',
-      'TER',
-      'QUA',
-      'QUI',
-      'SEX',
-      'SÁB',
-    ];
+    const nomesDias = {
+      DateTime.sunday: 'DOM',
+      DateTime.monday: 'SEG',
+      DateTime.tuesday: 'TER',
+      DateTime.wednesday: 'QUA',
+      DateTime.thursday: 'QUI',
+      DateTime.friday: 'SEX',
+      DateTime.saturday: 'SÁB',
+    };
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 5,
-        vertical: 10,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
@@ -52,8 +53,7 @@ class CalendarioSemanal extends StatelessWidget {
         ],
       ),
       child: Row(
-        children: List.generate(7, (index) {
-          final dia = dias[index];
+        children: dias.map((dia) {
           final selecionado =
               dia.year == dataSelecionada.year &&
               dia.month == dataSelecionada.month &&
@@ -72,7 +72,7 @@ class CalendarioSemanal extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      nomesDias[index],
+                      nomesDias[dia.weekday] ?? 'DIA',
                       style: TextStyle(
                         fontSize: 12,
                         color: selecionado
@@ -96,9 +96,7 @@ class CalendarioSemanal extends StatelessWidget {
                       width: 4,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: selecionado
-                            ? Colors.white
-                            : azul,
+                        color: selecionado ? Colors.white : azul,
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -107,7 +105,7 @@ class CalendarioSemanal extends StatelessWidget {
               ),
             ),
           );
-        }),
+        }).toList(),
       ),
     );
   }

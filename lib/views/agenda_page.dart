@@ -1,5 +1,7 @@
-
 import 'package:flutter/material.dart';
+import '../controllers/agenda_controller.dart';
+import '../models/agenda_model.dart';
+import '../services/auth_service.dart';
 import 'package:neurai_app/views/home.dart';
 import 'package:neurai_app/views/relatorios_page.dart';
 
@@ -7,11 +9,14 @@ import 'contents/home_bottom_nav.dart';
 import 'contents/calendario_semanal.dart';
 import 'contents/evento_card.dart';
 import 'contents/titulo_secao_agenda.dart';
+import 'contents/evento_form.dart';
 import 'historico_page.dart';
 import 'perfil_page.dart';
 
 class AgendaPage extends StatefulWidget {
-  const AgendaPage({super.key});
+  final String token;
+  final String cameraId;
+  const AgendaPage({super.key, this.token = '', this.cameraId = ''});
 
   @override
   State<AgendaPage> createState() => _AgendaPageState();
@@ -20,57 +25,49 @@ class AgendaPage extends StatefulWidget {
 class _AgendaPageState extends State<AgendaPage> {
   static const Color fundo = Color(0xFFE8F6FF);
   static const Color azul = Color(0xFF5298FF);
+  late final AgendaController controller;
+  String _token = '';
 
-  DateTime dataSelecionada = DateTime(2026, 9, 3);
+  DateTime get dataSelecionada => controller.diaSelecionado;
+  List<EventoModel> get eventosDoDia => controller.eventos;
 
-  final List<Map<String, String>> eventos = [
-    {
-      'titulo': 'Terapia ABA',
-      'horario': '09:00 - 10:00',
-      'local': 'Clínica Vida - Sala 2',
-      'data': '2026-09-03',
-    },
-    {
-      'titulo': 'Fonoaudiologia',
-      'horario': '11:00 - 11:45',
-      'local': 'Clínica Vida - Sala 1',
-      'data': '2026-09-03',
-    },
-    {
-      'titulo': 'Almoço',
-      'horario': '12:30 - 13:15',
-      'local': 'Rotina diária',
-      'data': '2026-09-03',
-    },
-    {
-      'titulo': 'Terapia Ocupacional',
-      'horario': '14:00 - 15:00',
-      'local': 'Clínica Vida - Sala 3',
-      'data': '2026-09-03',
-    },
-    {
-      'titulo': 'Momento Sensorial',
-      'horario': '14:00 - 15:00',
-      'local': 'Atividade em casa',
-      'data': '2026-09-03',
-    },
-    {
-      'titulo': 'Consulta de acompanhamento',
-      'horario': '10:00 - 11:00',
-      'local': 'Clínica Vida',
-      'data': '2026-09-04',
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
 
-  List<Map<String, String>> get eventosDoDia {
-    final dataFormatada =
-        '${dataSelecionada.year.toString().padLeft(4, '0')}-'
-        '${dataSelecionada.month.toString().padLeft(2, '0')}-'
-        '${dataSelecionada.day.toString().padLeft(2, '0')}';
+    controller = AgendaController();
+    controller.addListener(_atualizar);
 
-    return eventos
-        .where((evento) => evento['data'] == dataFormatada)
-        .toList();
+    _inicializarAgenda();
+  }
+
+  Future<void> _inicializarAgenda() async {
+    final token = widget.token.isNotEmpty
+        ? widget.token
+        : await AuthService().token ?? '';
+
+    if (!mounted) return;
+
+    if (token.isEmpty) {
+      setState(() {
+        controller.erro = 'Token não encontrado. Faça login novamente.';
+      });
+      return;
+    }
+
+    _token = token;
+    await controller.carregarEventos(token);
+  }
+
+  void _atualizar() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    controller.removeListener(_atualizar);
+    controller.dispose();
+    super.dispose();
   }
 
   String get nomeMes {
@@ -127,12 +124,31 @@ class _AgendaPageState extends State<AgendaPage> {
         '${dataSelecionada.day.toString().padLeft(2, '0')} de $mes';
   }
 
-  void abrirNovoEvento() {
+  Future<void> abrirNovoEvento() async {
+    final token = widget.token.isNotEmpty
+        ? widget.token
+        : await AuthService().token ?? '';
+    if (token.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Token não encontrado. Faça login novamente.'),
+          ),
+        );
+      }
+      return;
+    }
+    if (!mounted) return;
+    final evento = await showDialog<EventoModel>(
+      context: context,
+      builder: (_) => EventoFormDialog(dataInicial: dataSelecionada),
+    );
+    if (evento == null || !mounted) return;
+    final salvo = await controller.criarEvento(token, evento);
+    if (!mounted || salvo) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Formulário de novo evento ainda não foi criado.',
-        ),
+      SnackBar(
+        content: Text(controller.erro ?? 'Não foi possível salvar o evento.'),
       ),
     );
   }
@@ -165,19 +181,12 @@ class _AgendaPageState extends State<AgendaPage> {
                     padding: const EdgeInsets.all(2),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: azul,
-                        width: 0.8,
-                      ),
+                      border: Border.all(color: azul, width: 0.8),
                     ),
                     child: const CircleAvatar(
                       radius: 12,
                       backgroundColor: Color(0xFFD5EFFF),
-                      child: Icon(
-                        Icons.person,
-                        size: 18,
-                        color: azul,
-                      ),
+                      child: Icon(Icons.person, size: 18, color: azul),
                     ),
                   ),
                 ],
@@ -206,13 +215,10 @@ class _AgendaPageState extends State<AgendaPage> {
                       color: Color(0xFF555555),
                     ),
                     onSelected: (mes) {
-                      setState(() {
-                        dataSelecionada = DateTime(
-                          dataSelecionada.year,
-                          mes,
-                          1,
-                        );
-                      });
+                      controller.carregarEventos(
+                        _token,
+                        dia: DateTime(dataSelecionada.year, mes, 1),
+                      );
                     },
                     itemBuilder: (context) => List.generate(
                       12,
@@ -245,9 +251,7 @@ class _AgendaPageState extends State<AgendaPage> {
             CalendarioSemanal(
               dataSelecionada: dataSelecionada,
               onSelecionarData: (data) {
-                setState(() {
-                  dataSelecionada = data;
-                });
+                controller.carregarEventos(_token, dia: data);
               },
             ),
 
@@ -268,29 +272,23 @@ class _AgendaPageState extends State<AgendaPage> {
                       child: Center(
                         child: Text(
                           'Nenhum evento para este dia.',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
+                          style: TextStyle(fontSize: 12, color: Colors.black54),
                         ),
                       ),
                     )
                   else
                     ...lista.map(
                       (evento) => EventoCard(
-                        titulo: evento['titulo']!,
-                        horario: evento['horario']!,
-                        local: evento['local']!,
+                        titulo: evento.titulo,
+                        horario: _horario(evento),
+                        local: evento.localizacao,
                       ),
                     ),
 
                   const SizedBox(height: 5),
 
                   const Padding(
-                    padding: EdgeInsets.only(
-                      left: 6,
-                      bottom: 14,
-                    ),
+                    padding: EdgeInsets.only(left: 6, bottom: 14),
                     child: Text(
                       'Próximos eventos',
                       style: TextStyle(
@@ -301,23 +299,13 @@ class _AgendaPageState extends State<AgendaPage> {
                     ),
                   ),
 
-                  ...eventos
-                      .where(
-                        (evento) =>
-                            evento['data']!.compareTo(
-                              '${dataSelecionada.year.toString().padLeft(4, '0')}-'
-                              '${dataSelecionada.month.toString().padLeft(2, '0')}-'
-                              '${dataSelecionada.day.toString().padLeft(2, '0')}',
-                            ) > 0,
-                      )
-                      .take(3)
-                      .map(
-                        (evento) => EventoCard(
-                          titulo: evento['titulo']!,
-                          horario: evento['horario']!,
-                          local: evento['local']!,
-                        ),
-                      ),
+                  if (controller.carregando)
+                    const Center(child: CircularProgressIndicator()),
+                  if (controller.erro case final erro?)
+                    Text(
+                      erro,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                 ],
               ),
             ),
@@ -334,7 +322,8 @@ class _AgendaPageState extends State<AgendaPage> {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const HomePage(cameraId: '', token: '',),
+                  builder: (_) =>
+                      HomePage(cameraId: widget.cameraId, token: widget.token),
                 ),
               );
               break;
@@ -342,32 +331,46 @@ class _AgendaPageState extends State<AgendaPage> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const HistoricoPage(),
+                  builder: (context) => HistoricoPage(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
                 ),
               );
               break;
             case 2:
-              
               break;
             case 3:
               Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const RelatoriosScreen(),
-              ),
-            );
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RelatoriosScreen(
+                    token: widget.token,
+                    cameraId: widget.cameraId,
+                  ),
+                ),
+              );
               break;
             case 4:
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const PerfilPage(cameraId: '', token: '',),
-              ),
-            );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PerfilPage(
+                    cameraId: widget.cameraId,
+                    token: widget.token,
+                  ),
+                ),
+              );
               break;
           }
         },
       ),
     );
+  }
+
+  String _horario(EventoModel evento) {
+    String formatar(DateTime data) =>
+        '${data.hour.toString().padLeft(2, '0')}:${data.minute.toString().padLeft(2, '0')}';
+    return '${formatar(evento.inicio)} - ${formatar(evento.fim)}';
   }
 }
