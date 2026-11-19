@@ -76,6 +76,10 @@ void main() {
   });
 
   test('ReportService converte dashboard em relatório', () async {
+    final hoje = DateTime.now();
+    final eventoDaSemana = hoje
+        .subtract(Duration(days: hoje.weekday - DateTime.monday))
+        .add(const Duration(hours: 10));
     final client = TestClient(
       (request) async {
         if (request.url.path == '/agenda/eventos/') {
@@ -85,8 +89,9 @@ void main() {
                 {
                   'id': 'evento-1',
                   'nome': 'Terapia',
-                  'horario_inicio': '2026-10-01T10:00:00',
-                  'horario_fim': '2026-10-01T11:00:00',
+                  'horario_inicio': eventoDaSemana.toIso8601String(),
+                  'horario_fim':
+                      eventoDaSemana.add(const Duration(hours: 1)).toIso8601String(),
                   'localizacao': 'Clínica',
                 },
               ],

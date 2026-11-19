@@ -30,22 +30,68 @@ class ReportService {
     final primeiroDia = hoje.subtract(
       Duration(days: hoje.weekday - DateTime.monday),
     );
+    final inicioSemana = DateTime(
+      primeiroDia.year,
+      primeiroDia.month,
+      primeiroDia.day,
+    );
+    final fimSemana = inicioSemana.add(const Duration(days: 7));
 
-    final dias = List.generate(7, (indice) {
-      final dia = primeiroDia.add(Duration(days: indice));
-      final data =
-          '${dia.year.toString().padLeft(4, '0')}-'
-          '${dia.month.toString().padLeft(2, '0')}-'
-          '${dia.day.toString().padLeft(2, '0')}';
+    final eventos = <EventoModel>[];
+    final ids = <String>{};
 
-      return api.getJson(
+    try {
+      final resposta = await api.getJson(
         '/agenda/eventos/',
         token: token,
-        queryParameters: {'data': data},
       );
-    });
+      final raw =
+          resposta['data'] ?? resposta['eventos'] ?? resposta['results'];
+      if (raw is List) {
+        for (final item in raw.whereType<Map>()) {
+          final evento = EventoModel.fromJson(
+            Map<String, dynamic>.from(item),
+          );
+          if (evento.inicio.isBefore(inicioSemana) ||
+              !evento.inicio.isBefore(fimSemana)) {
+            continue;
+          }
+          if (evento.id.isEmpty || ids.add(evento.id)) {
+            eventos.add(evento);
+          }
+        }
+      }
+    } catch (_) {
+      return _buscarEventosPorDia(token, inicioSemana);
+    }
 
-    final respostas = await Future.wait(dias);
+    if (eventos.isEmpty) {
+      return _buscarEventosPorDia(token, inicioSemana);
+    }
+
+    eventos.sort((a, b) => a.inicio.compareTo(b.inicio));
+    return eventos;
+  }
+
+  Future<List<EventoModel>> _buscarEventosPorDia(
+    String token,
+    DateTime inicioSemana,
+  ) async {
+    final respostas = await Future.wait(
+      List.generate(7, (indice) {
+        final dia = inicioSemana.add(Duration(days: indice));
+        final data =
+            '${dia.year.toString().padLeft(4, '0')}-'
+            '${dia.month.toString().padLeft(2, '0')}-'
+            '${dia.day.toString().padLeft(2, '0')}';
+        return api.getJson(
+          '/agenda/eventos/',
+          token: token,
+          queryParameters: {'data': data},
+        );
+      }),
+    );
+
     final eventos = <EventoModel>[];
     final ids = <String>{};
 
@@ -64,6 +110,7 @@ class ReportService {
       }
     }
 
+    eventos.sort((a, b) => a.inicio.compareTo(b.inicio));
     return eventos;
   }
 }
