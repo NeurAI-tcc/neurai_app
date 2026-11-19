@@ -77,18 +77,37 @@ void main() {
 
   test('ReportService converte dashboard em relatório', () async {
     final client = TestClient(
-      (request) async => http.Response(
-        jsonEncode({
-          'relatorio': {
-            'tempo_monitorado_minutos': 90,
-            'situacoes_tranquilas': 4,
-            'alertas_registrados': 2,
-            'eventos': 3,
-            'insights': ['Rotina estável'],
-          },
-        }),
-        200,
-      ),
+      (request) async {
+        if (request.url.path == '/agenda/eventos/') {
+          return http.Response(
+            jsonEncode({
+              'eventos': [
+                {
+                  'id': 'evento-1',
+                  'nome': 'Terapia',
+                  'horario_inicio': '2026-10-01T10:00:00',
+                  'horario_fim': '2026-10-01T11:00:00',
+                  'localizacao': 'Clínica',
+                },
+              ],
+            }),
+            200,
+          );
+        }
+
+        return http.Response(
+          jsonEncode({
+            'relatorio': {
+              'tempo_monitorado_minutos': 90,
+              'situacoes_tranquilas': 4,
+              'alertas_registrados': 2,
+              'eventos': 0,
+              'insights': ['Rotina estável'],
+            },
+          }),
+          200,
+        );
+      },
     );
     final report = await ReportService(
       api: ApiService(baseUrl: 'https://api.test', client: client),
@@ -96,6 +115,8 @@ void main() {
 
     expect(report.tempoMonitorado.inMinutes, 90);
     expect(report.insights, ['Rotina estável']);
+    expect(report.eventos, 1);
+    expect(report.eventosDetalhados.single.id, 'evento-1');
   });
 
   test('AuthService transforma erro HTTP em exceção', () async {

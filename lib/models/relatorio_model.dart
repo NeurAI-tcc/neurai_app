@@ -19,6 +19,19 @@ class RelatorioModel {
     this.pdfUrl,
   });
 
+  RelatorioModel comEventos(
+    int quantidade,
+    List<EventoModel> detalhados,
+  ) => RelatorioModel(
+    tempoMonitorado: tempoMonitorado,
+    situacoesTranquilas: situacoesTranquilas,
+    alertasRegistrados: alertasRegistrados,
+    eventos: quantidade,
+    insights: insights,
+    eventosDetalhados: detalhados,
+    pdfUrl: pdfUrl,
+  );
+
   factory RelatorioModel.fromJson(Map<String, dynamic> json) => RelatorioModel(
     tempoMonitorado: Duration(
       minutes: (json['tempo_monitorado_minutos'] as num?)?.toInt() ?? 0,

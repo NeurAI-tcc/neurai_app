@@ -3,13 +3,108 @@ import 'package:flutter/material.dart';
 import 'contents/configuracoes_cartao.dart';
 import 'contents/configuracoes_item.dart';
 import 'contents/configuracoes_secao.dart';
+import '../models/camera_model.dart';
+import '../models/usuario_model.dart';
+import '../services/api_service.dart';
+import '../services/auth_service.dart';
+import '../services/alert_service.dart';
+import 'login_page.dart';
 
-class ConfiguracoesPage extends StatelessWidget {
-  const ConfiguracoesPage({super.key});
+class ConfiguracoesPage extends StatefulWidget {
+  final String token;
+  final String cameraId;
+
+  const ConfiguracoesPage({
+    super.key,
+    this.token = '',
+    this.cameraId = '',
+  });
+
+  @override
+  State<ConfiguracoesPage> createState() => _ConfiguracoesPageState();
+}
+
+class _ConfiguracoesPageState extends State<ConfiguracoesPage> {
+  final ApiService _api = ApiService();
+  final AuthService _auth = AuthService();
+  final AlertService _alerts = AlertService();
+
+  UsuarioModel? _usuario;
+  CameraModel? _camera;
+  int _quantidadeAlertas = 0;
+  bool _carregando = true;
+  String? _erro;
 
   static const Color azul = Color(0xFF5298FF);
   static const Color fundo = Color(0xFFE8F6FF);
   static const Color texto = Color(0xFF263746);
+
+  @override
+  void initState() {
+    super.initState();
+    _carregarConfiguracoes();
+  }
+
+  Future<void> _carregarConfiguracoes() async {
+    setState(() {
+      _carregando = true;
+      _erro = null;
+    });
+
+    try {
+      final token = widget.token.isNotEmpty
+          ? widget.token
+          : await _auth.token ?? '';
+      if (token.isEmpty) {
+        throw Exception('Token não encontrado. Faça login novamente.');
+      }
+
+      final usuario = await _api.buscarPerfil(token: token);
+      final camera = await _api.buscarCamera(token: token);
+      final alertas = await _alerts.buscarHistorico(
+        token: token,
+        porPagina: 1,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _usuario = usuario;
+        _camera = camera;
+        _quantidadeAlertas = alertas.itens.length;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _erro = error.toString());
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
+
+  CriancaModel? get _crianca => _usuario?.perfilCrianca;
+
+  String get _nomeCrianca =>
+      _crianca?.nomeCompleto.isNotEmpty == true
+      ? _crianca!.nomeCompleto
+      : 'Perfil da criança';
+
+  String get _idadeCrianca {
+    final nascimento = _crianca?.infoBasica.dataNascimento;
+    if (nascimento == null) return '';
+    var idade = DateTime.now().year - nascimento.year;
+    final hoje = DateTime.now();
+    if (hoje.month < nascimento.month ||
+        (hoje.month == nascimento.month && hoje.day < nascimento.day)) {
+      idade--;
+    }
+    return '$idade anos';
+  }
+
+  String get _diagnosticoCrianca {
+    final diagnostico = _crianca?.diagnosticoPrincipal;
+    return diagnostico != null && diagnostico.isNotEmpty
+        ? diagnostico
+        : 'Diagnóstico não informado';
+  }
 
   void _mostrarMensagem(BuildContext context, String mensagem) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -117,31 +212,33 @@ class ConfiguracoesPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 18),
-                  const Expanded(
+                  Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Ariana',
-                          style: TextStyle(
+                          _carregando ? 'Carregando...' : _nomeCrianca,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: texto,
                           ),
                         ),
-                        SizedBox(height: 5),
-                        Text(
-                          '8 anos',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                        if (_idadeCrianca.isNotEmpty) ...[
+                          const SizedBox(height: 5),
+                          Text(
+                            _idadeCrianca,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 5),
+                        ],
+                        const SizedBox(height: 5),
                         Text(
-                          'TEA - Nível 1 de suporte',
-                          style: TextStyle(
+                          _diagnosticoCrianca,
+                          style: const TextStyle(
                             fontSize: 12,
                             color: Colors.black54,
                           ),
@@ -160,6 +257,35 @@ class ConfiguracoesPage extends StatelessWidget {
 
             const SizedBox(height: 30),
 
+            if (_erro != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF2F2),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.red),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Não foi possível carregar alguns dados da API.',
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Tentar novamente',
+                        onPressed: _carregarConfiguracoes,
+                        icon: const Icon(Icons.refresh),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
             // MONITORAMENTO
             const ConfiguracoesSecao(
               titulo: 'Monitoramento',
@@ -171,13 +297,17 @@ class ConfiguracoesPage extends StatelessWidget {
                   context,
                   icone: Icons.camera_alt_outlined,
                   titulo: 'Câmeras e dispositivos',
-                  descricao: 'Gerencie as câmeras conectadas',
+                  descricao: _camera == null
+                      ? 'Nenhuma câmera carregada'
+                      : '${_camera!.nome.isNotEmpty ? _camera!.nome : 'Câmera conectada'} - ${_camera!.enderecoIp.isNotEmpty ? _camera!.enderecoIp : 'IP não informado'}',
                 ),
                 _criarItem(
                   context,
                   icone: Icons.notifications_none_rounded,
                   titulo: 'Alertas e notificações',
-                  descricao: 'Personalize como e quando receber alertas',
+                  descricao: _quantidadeAlertas > 0
+                      ? '$_quantidadeAlertas alerta recente encontrado'
+                      : 'Sem alertas recentes',
                 ),
                 _criarItem(
                   context,
@@ -287,12 +417,24 @@ class ConfiguracoesPage extends StatelessWidget {
                             ),
                           ),
                           TextButton(
-                            onPressed: () {
+                            onPressed: () async {
                               Navigator.pop(dialogContext);
-                              _mostrarMensagem(
-                                context,
-                                'Conecte aqui sua função de logout.',
-                              );
+                              try {
+                                await _auth.logout();
+                                if (!context.mounted) return;
+                                Navigator.of(context).pushAndRemoveUntil(
+                                  MaterialPageRoute(
+                                    builder: (_) => const LoginPage(),
+                                  ),
+                                  (route) => false,
+                                );
+                              } catch (_) {
+                                if (!context.mounted) return;
+                                _mostrarMensagem(
+                                  context,
+                                  'Não foi possível sair da conta.',
+                                );
+                              }
                             },
                             child: const Text(
                               'Sair',

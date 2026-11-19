@@ -62,7 +62,12 @@ class _PerfilPageState extends State<PerfilPage> {
   void _abrirConfiguracoes(BuildContext context) {
     Navigator.of(
       context,
-    ).push(MaterialPageRoute(builder: (context) => const ConfiguracoesPage()));
+    ).push(MaterialPageRoute(
+      builder: (context) => ConfiguracoesPage(
+        token: widget.token,
+        cameraId: widget.cameraId,
+      ),
+    ));
   }
 
   @override
