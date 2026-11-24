@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class AlertaModel {
   final String id;
   final DateTime timestamp;
@@ -19,16 +21,27 @@ class AlertaModel {
     this.videoUrl,
   });
 
-  factory AlertaModel.fromJson(Map<String, dynamic> json) => AlertaModel(
-    id: json['id'] as String? ?? '',
-    timestamp:
-        DateTime.tryParse(json['timestamp'] as String? ?? '') ??
-        DateTime.fromMillisecondsSinceEpoch(0),
-    tipoCrise: json['tipo_crise'] as String? ?? json['tipo'] as String? ?? '',
-    detalhes: json['detalhes'] as String? ?? '',
-    falsoPositivo: json['falso_positivo'] as bool? ?? false,
-    confiancaIa: (json['confianca_ia'] as num?)?.toDouble() ?? 0,
-    cameraId: json['camera_id'] as String? ?? '',
-    videoUrl: json['video_url'] as String?,
-  );
+  static String texto(dynamic valor) {
+    if (valor == null) return '';
+    if (valor is String) return valor;
+    if (valor is Map || valor is List) {
+      return jsonEncode(valor);
+    }
+    return valor.toString();
+  }
+
+  factory AlertaModel.fromJson(Map<String, dynamic> json) {
+    return AlertaModel(
+      id: texto(json['id']),
+      timestamp:
+          DateTime.tryParse(texto(json['timestamp'])) ??
+          DateTime.fromMillisecondsSinceEpoch(0),
+      tipoCrise: texto(json['tipo_crise'] ?? json['tipo']),
+      detalhes: texto(json['detalhes']),
+      falsoPositivo: json['falso_positivo'] == true,
+      confiancaIa: (json['confianca_ia'] as num?)?.toDouble() ?? 0,
+      cameraId: texto(json['camera_id']),
+      videoUrl: json['video_url'] == null ? null : texto(json['video_url']),
+    );
+  }
 }

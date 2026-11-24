@@ -31,7 +31,9 @@ class AlertService {
         if (tipo != null) 'tipo': tipo,
       },
     );
-    final raw = result['results'] ?? result['alertas'] ?? const [];
+
+    final raw =
+        result['data'] ?? result['results'] ?? result['alertas'] ?? const [];
     final itens = raw is List
         ? raw
               .whereType<Map>()

@@ -187,7 +187,16 @@ class _HistoricoPageState extends State<HistoricoPage> {
 
             // LISTA DE ALERTAS
             Expanded(
-              child: lista.isEmpty
+              child: controller.carregando
+                  ? const Center(child: CircularProgressIndicator())
+                  : controller.erro != null
+                  ? Center(
+                      child: Text(
+                        'Erro ao carregar alertas:\n${controller.erro}',
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                  : lista.isEmpty
                   ? const Center(child: Text('Sem alertas'))
                   : ListView.builder(
                       padding: const EdgeInsets.fromLTRB(10, 0, 10, 12),
@@ -202,11 +211,8 @@ class _HistoricoPageState extends State<HistoricoPage> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // TÍTULO DO DIA REUTILIZÁVEL
                             if (mostrarGrupo)
                               GrupoAlertas(titulo: alerta['grupo']),
-
-                            // CARD REUTILIZÁVEL
                             AlertaCard(
                               categoria: alerta['categoria'],
                               titulo: alerta['titulo'],
@@ -214,7 +220,6 @@ class _HistoricoPageState extends State<HistoricoPage> {
                               horario: alerta['horario'],
                               data: alerta['data'],
                             ),
-
                             const SizedBox(height: 7),
                           ],
                         );
